@@ -5,9 +5,9 @@ Aplicación móvil nativa para Android que ayuda a las personas a registrar y da
 ## Características
 
 - Inicio de sesión y registro de usuarios.
-- Gestión de roles: Usuario, Administrador y SuperAdministrador.
-- Registro y seguimiento de hábitos.
-- Pantalla de inicio con saludo personalizado.
+- Roles: Usuario, Administrador y SuperAdministrador.
+- Registro, listado y detalle de hábitos.
+- Edición de perfil y cambio de contraseña.
 - Administración de usuarios para los roles con permisos.
 
 ## Tecnologías
@@ -49,6 +49,28 @@ pulseup.baseUrl=http://192.168.X.X:5050/
 - Conserva el `http://` y la `/` del final.
 - Si la propiedad no existe, la app usa `http://10.0.2.2:5050/`, que solo funciona en el emulador de Android Studio.
 - Si cambias de red Wi-Fi, actualiza la IP, pulsa **Sync Now** y vuelve a ejecutar.
+
+## Estructura del proyecto
+
+```
+app/src/main/java/com/example/pulseup/
+├── MainActivity.kt           # Punto de entrada de la aplicación
+├── AppNavegacion.kt          # Rutas y navegación entre pantallas
+├── LoginScreen.kt            # Inicio de sesión
+├── RegisterScreen.kt         # Registro de usuarios
+├── HabitosScreen.kt          # Listado y registro de hábitos
+├── DetalleHabitoScreen.kt    # Detalle de un hábito
+├── PerfilScreen.kt           # Perfil del usuario
+├── EditProfileScreen.kt      # Edición de perfil
+├── ChangePasswordScreen.kt   # Cambio de contraseña
+├── UserScreen.kt             # Administración de usuarios
+├── data/
+│   ├── ApiService.kt         # Endpoints de la API (Retrofit)
+│   ├── Models.kt             # Modelos de datos
+│   ├── RetrofitClient.kt     # Cliente HTTP y URL del backend
+│   └── Session.kt            # Token y usuario de la sesión actual
+└── ui/theme/                 # Colores, tema y tipografía
+```
 
 ## Autores
 
