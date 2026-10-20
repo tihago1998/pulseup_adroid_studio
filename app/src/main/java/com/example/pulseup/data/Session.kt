@@ -18,6 +18,14 @@ object Session {
     val isSuperAdmin: Boolean
         get() = usuario?.roles?.contains("SuperAdministrador") == true
 
+    // Primer nombre del usuario para saludos ("Santiago Varela Peña" -> "Santiago").
+    // Si no hay sesión o el nombre viene vacío, devuelve "Usuario".
+    val primerNombre: String
+        get() = usuario?.nombre
+            ?.substringBefore(" ")
+            ?.takeIf { it.isNotBlank() }
+            ?: "Usuario"
+
     // Devuelve el token ya formateado como lo espera el encabezado Authorization
     fun bearer(): String = "Bearer $token"
 
