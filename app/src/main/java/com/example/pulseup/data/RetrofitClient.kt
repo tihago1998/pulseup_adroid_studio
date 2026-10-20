@@ -5,11 +5,12 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import com.example.pulseup.BuildConfig
 
 object RetrofitClient {
 
-    // Se usa la IP real de la PC en la red local en su lugar.
-    private const val BASE_URL = "http://192.168.0.106:5050/"
+    // La URL del backend viene de local.properties (pulseup.baseUrl).
+    private const val BASE_URL = BuildConfig.BASE_URL
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -17,8 +18,8 @@ object RetrofitClient {
 
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
-        .connectTimeout(90, TimeUnit.SECONDS) // Aumentado a 90s
-        .readTimeout(90, TimeUnit.SECONDS)    // Aumentado a 90s
+        .connectTimeout(30, TimeUnit.SECONDS) // 30 segundos
+        .readTimeout(30, TimeUnit.SECONDS)    // 30 segundos
         .build()
 
     val api: ApiService by lazy {
