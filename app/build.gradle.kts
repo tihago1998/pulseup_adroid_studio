@@ -1,8 +1,18 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("kotlin-parcelize")
 }
+
+// Lee la URL del backend desde local.properties (ese archivo no se sube a git).
+// Si no existe, usa la dirección del PC vista desde el emulador de Android Studio.
+val localProperties = Properties().apply {
+    val archivo = rootProject.file("local.properties")
+    if (archivo.exists()) archivo.inputStream().use { load(it) }
+}
+val baseUrl: String = localProperties.getProperty("pulseup.baseUrl", "http://192.168.0.187:5050")
 
 android {
     namespace = "com.example.pulseup" //Cambiar Package de inicio al momento de crear proyecto
@@ -12,8 +22,9 @@ android {
         minSdk = 24
         targetSdk = 37
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
     }
 
     buildTypes {
@@ -31,6 +42,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

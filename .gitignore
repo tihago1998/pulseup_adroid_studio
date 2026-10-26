@@ -1,20 +1,26 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
+# Gradle y compilación
+.gradle/
+build/
+/captures/
+.externalNativeBuild/
+.cxx/
 
-# Repositorios anidados ajenos a este proyecto
-/ecomerce/
-/ecommerce-SENA_SHOP/
-/pulseup_adroid_studio/
+# Kotlin
+.kotlin/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+
+# Archivos locales y secretos (no se suben)
+local.properties
+*.jks
+*.keystore
+
+# Compilados
+*.apk
+*.aab
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
