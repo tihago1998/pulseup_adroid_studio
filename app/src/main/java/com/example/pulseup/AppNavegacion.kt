@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.pulseup.data.Session
 import java.net.URLDecoder
 import java.net.URLEncoder
 
@@ -17,9 +18,9 @@ fun AppNavegacion() {
         composable("login") {
             LoginScreen(
                 onLoginExitoso = {
-                    // Al loguearse, navegamos a "lista" y quitamos "login" del historial
+                    // Al loguearse, navegamos a "home" y quitamos "login" del historial
                     // (popUpTo + inclusive = true) para que el botón "atrás" no regrese al login
-                    navController.navigate("lista") {
+                    navController.navigate("home") {
                         popUpTo("login") { inclusive = true }
                     }
                 },
@@ -39,8 +40,9 @@ fun AppNavegacion() {
                 }
             )
         }
-        composable("lista") {
-            HabitosScreen(
+        composable("home") {
+            HomeScreen(
+                nombre = Session.primerNombre,
                 onHabitoClick = { habito ->
                     val descEncoded = URLEncoder.encode(habito.descripcion, "UTF-8")
                     navController.navigate("detalle/$descEncoded/${habito.categoria}")
@@ -49,10 +51,10 @@ fun AppNavegacion() {
                     navController.navigate("users")
                 },
                 onCerrarSesion = {
-                    // Simétrico al login: vamos a "login" y borramos "lista" del historial,
+                    // Vamos a "login" y borramos "home" del historial,
                     // para que el botón "atrás" no regrese a una sesión ya cerrada
                     navController.navigate("login") {
-                        popUpTo("lista") { inclusive = true }
+                        popUpTo("home") { inclusive = true }
                     }
                 },
                 onEditarPerfilClick = {
@@ -60,7 +62,10 @@ fun AppNavegacion() {
                 },
                 onCambiarPasswordClick = {
                     navController.navigate("changePassword")
-                }
+                },
+                onProgresoClick = { /* pendiente */ },
+                onNotificacionesClick = { /* pendiente */ },
+                onConfiguracionClick = { /* pendiente */ }
             )
         }
         composable(
