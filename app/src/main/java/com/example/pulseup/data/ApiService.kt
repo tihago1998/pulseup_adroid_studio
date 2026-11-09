@@ -5,9 +5,11 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
     //------------------USUARIOS-----------------------
@@ -61,14 +63,34 @@ interface ApiService {
     ): Response<MessageResponse>
 
     //------------------------------HABITOS--------------------------
-    // Lista los hábitos del usuario dueño del token
+    // Lista los hábitos del usuario dueño del token.
+    // Si se manda fecha (YYYY-MM-DD) solo devuelve los de ese día; si es null, devuelve todos.
     @GET("api/habitos/")
-    suspend fun getHabitos(@Header("Authorization") auth: String): Response<HabitosListResponse>
+    suspend fun getHabitos(
+        @Header("Authorization") auth: String,
+        @Query("fecha") fecha: String? = null
+    ): Response<HabitosListResponse>
 
-    // Registra un hábito para el usuario dueño del token
+    // Registra un hábito para el usuario dueño del token (la fecha va dentro del body, opcional)
     @POST("api/habitos/")
     suspend fun crearHabito(
         @Header("Authorization") auth: String,
         @Body body: HabitoRequest
     ): Response<MessageResponse>
+
+    // Marca o desmarca un hábito como cumplido. {id} es el id del hábito.
+    @PATCH("api/habitos/{id}/completado")
+    suspend fun marcarCompletado(
+        @Header("Authorization") auth: String,
+        @Path("id") id: Int,
+        @Body body: CompletadoRequest
+    ): Response<MessageResponse>
+
+    // Resumen por día entre dos fechas (YYYY-MM-DD): lo usa el calendario para las llamas
+    @GET("api/habitos/resumen")
+    suspend fun getResumen(
+        @Header("Authorization") auth: String,
+        @Query("desde") desde: String,
+        @Query("hasta") hasta: String
+    ): Response<ResumenResponse>
 }
