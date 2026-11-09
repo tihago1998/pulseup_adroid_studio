@@ -26,19 +26,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.pulseup.ui.theme.PuBgSurface
-import com.example.pulseup.ui.theme.PuBorder
-import com.example.pulseup.ui.theme.PuTextSecondary
 import com.example.pulseup.data.Habito
 import com.example.pulseup.data.HabitoRequest
 import com.example.pulseup.data.RetrofitClient
 import com.example.pulseup.data.Session
+import com.example.pulseup.ui.theme.PuBgSurface
+import com.example.pulseup.ui.theme.PuBorder
+import com.example.pulseup.ui.theme.PuTextSecondary
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 // Los colores (PuBgBase, PuBgCard, PuAccent, etc.) salen de los que ya tienes
 // declarados en el paquete com.example.pulseup. Aquí no se redefinen.
-// Este archivo usa PuBgSurface y PuBorder además de los que usaba HabitosScreen:
-// si alguno no existe en tu Color.kt, agrégalo allí.
 
 private val CATEGORIAS = listOf("Ejercicio", "Nutrición", "Sueño")
 
@@ -49,6 +48,16 @@ private fun emojiDe(categoria: String): String {
         c.contains("nutri") || c.contains("alim") -> "🥗"
         c.contains("sue") -> "🌙"
         else -> "✨"
+    }
+}
+
+// Saludo según la hora del dispositivo
+private fun saludoPorHora(): String {
+    val hora = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+    return when (hora) {
+        in 5..11 -> "Buenos días"
+        in 12..17 -> "Buenas tardes"
+        else -> "Buenas noches"
     }
 }
 
@@ -320,7 +329,7 @@ private fun Encabezado(nombre: String, onConfiguracionClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
-            Text("Hola,", color = PuTextMuted, fontSize = 13.sp)
+            Text("${remember { saludoPorHora() }},", color = PuTextMuted, fontSize = 13.sp)
             Text(
                 nombre,
                 color = PuTextPrimary,
