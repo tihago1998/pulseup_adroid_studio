@@ -39,6 +39,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        // Permite usar java.time (LocalDate, YearMonth) con minSdk 24
+        isCoreLibraryDesugaringEnabled = true
     }
     buildFeatures {
         compose = true
@@ -65,9 +67,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    // Íconos extendidos (incluye la llama del calendario); la versión la pone el BOM
     implementation("androidx.compose.material:material-icons-extended")
-    // ... otras dependencias
-    implementation("androidx.compose.material:material-icons-extended-android:...")
     // Navigation Compose
     implementation("androidx.navigation:navigation-compose:2.7.6")
     // ViewModel Compose
@@ -81,6 +82,8 @@ dependencies {
     // DataStore para preferencias (reemplazo de SharedPreferences)
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation(libs.androidx.espresso.core)
+    // Desugaring: soporte de java.time en Android 7 (API 24) y similares
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
