@@ -7,6 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import com.example.pulseup.BuildConfig
 import com.example.pulseup.data.remote.EntrenamientoApi
+import com.example.pulseup.data.remote.PlanApi
 
 object RetrofitClient {
 
@@ -36,4 +37,7 @@ object RetrofitClient {
 
     // Ejercicios y rutinas
     val entrenamientoApi: EntrenamientoApi by lazy { retrofit.create(EntrenamientoApi::class.java) }
+
+    // Plan semanal y calendario
+    val planApi: PlanApi by lazy { retrofit.create(PlanApi::class.java) }
 }
