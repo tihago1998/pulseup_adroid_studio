@@ -1,12 +1,28 @@
 package com.example.pulseup
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.pulseup.data.Session
+import com.example.pulseup.di.Dependencias
+import com.example.pulseup.presentation.ejercicios.EjercicioDetalleScreen
+import com.example.pulseup.presentation.ejercicios.EjercicioDetalleViewModel
+import com.example.pulseup.presentation.ejercicios.EjerciciosScreen
+import com.example.pulseup.presentation.ejercicios.EjerciciosViewModel
+import com.example.pulseup.presentation.fabricaDe
+import com.example.pulseup.presentation.rutinas.CrearRutinaScreen
+import com.example.pulseup.presentation.rutinas.CrearRutinaViewModel
+import com.example.pulseup.presentation.rutinas.RutinaDetalleScreen
+import com.example.pulseup.presentation.rutinas.RutinaDetalleViewModel
+import com.example.pulseup.presentation.rutinas.RutinasScreen
+import com.example.pulseup.presentation.rutinas.RutinasViewModel
 import java.net.URLDecoder
 import java.net.URLEncoder
 
@@ -63,6 +79,8 @@ fun AppNavegacion() {
                 onCambiarPasswordClick = {
                     navController.navigate("changePassword")
                 },
+                onEjerciciosClick = { navController.navigate("ejercicios") },
+                onRutinasClick = { navController.navigate("rutinas") },
                 onProgresoClick = { /* pendiente */ },
                 onNotificacionesClick = { /* pendiente */ },
                 onConfiguracionClick = { /* pendiente */ }
@@ -98,6 +116,79 @@ fun AppNavegacion() {
         composable("changePassword") {
             ChangePasswordScreen(
                 onVolverClick = { navController.popBackStack() }
+            )
+        }
+        // ---------- Ejercicios y rutinas ----------
+        composable("ejercicios") {
+            val viewModel: EjerciciosViewModel = viewModel(
+                factory = fabricaDe { EjerciciosViewModel(Dependencias.ejerciciosRepository) }
+            )
+            EjerciciosScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onEjercicioClick = { id -> navController.navigate("ejercicio/$id") }
+            )
+        }
+        composable(
+            route = "ejercicio/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { entrada ->
+            val id = entrada.arguments?.getInt("id") ?: 0
+            val viewModel: EjercicioDetalleViewModel = viewModel(
+                factory = fabricaDe { EjercicioDetalleViewModel(Dependencias.ejerciciosRepository, id) }
+            )
+            EjercicioDetalleScreen(viewModel = viewModel, onVolver = { navController.popBackStack() })
+        }
+        composable("rutinas") { entrada ->
+            val viewModel: RutinasViewModel = viewModel(
+                factory = fabricaDe { RutinasViewModel(Dependencias.rutinasRepository) }
+            )
+            // Al crear o eliminar una rutina, la pantalla que se cierra deja esta marca para recargar la lista
+            val recargar by entrada.savedStateHandle.getStateFlow("recargar", false).collectAsState()
+            LaunchedEffect(recargar) {
+                if (recargar) {
+                    viewModel.cargar()
+                    entrada.savedStateHandle["recargar"] = false
+                }
+            }
+            RutinasScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onRutinaClick = { id -> navController.navigate("rutina/$id") },
+                onCrearClick = { navController.navigate("rutinaNueva") }
+            )
+        }
+        composable(
+            route = "rutina/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { entrada ->
+            val id = entrada.arguments?.getInt("id") ?: 0
+            val viewModel: RutinaDetalleViewModel = viewModel(
+                factory = fabricaDe { RutinaDetalleViewModel(Dependencias.rutinasRepository, id) }
+            )
+            RutinaDetalleScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onEjercicioClick = { idEjercicio -> navController.navigate("ejercicio/$idEjercicio") },
+                onEliminada = {
+                    navController.previousBackStackEntry?.savedStateHandle?.set("recargar", true)
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable("rutinaNueva") {
+            val viewModel: CrearRutinaViewModel = viewModel(
+                factory = fabricaDe {
+                    CrearRutinaViewModel(Dependencias.rutinasRepository, Dependencias.ejerciciosRepository)
+                }
+            )
+            CrearRutinaScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onCreada = {
+                    navController.previousBackStackEntry?.savedStateHandle?.set("recargar", true)
+                    navController.popBackStack()
+                }
             )
         }
     }
