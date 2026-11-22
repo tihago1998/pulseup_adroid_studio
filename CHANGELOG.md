@@ -10,6 +10,9 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - Catálogo de ejercicios con búsqueda y filtros por músculo y equipo, y detalle con instrucciones.
 - Rutinas: plantillas del sistema y rutinas propias (crear, ver y eliminar).
 - Accesos a Ejercicios y Rutinas en el Home.
+- Plan semanal: asignar una rutina a cada día; el mensaje de la regla de descanso de 48 h del backend se muestra al usuario.
+- Calendario del mes con estados (cumplido 🔥, pendiente, incumplido, descanso), racha y botón para marcar la rutina de hoy.
+- Tarjeta "Hoy toca" en el Home con la rutina del día, la racha y el botón de marcar.
 
 ### Changed
 
