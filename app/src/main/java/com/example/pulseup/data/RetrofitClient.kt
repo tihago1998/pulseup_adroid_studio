@@ -6,6 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import com.example.pulseup.BuildConfig
+import com.example.pulseup.data.remote.EntrenamientoApi
 
 object RetrofitClient {
 
@@ -22,12 +23,17 @@ object RetrofitClient {
         .readTimeout(30, TimeUnit.SECONDS)    // 30 segundos
         .build()
 
-    val api: ApiService by lazy {
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(ApiService::class.java)
     }
+
+    // Usuarios, perfil y hábitos
+    val api: ApiService by lazy { retrofit.create(ApiService::class.java) }
+
+    // Ejercicios y rutinas
+    val entrenamientoApi: EntrenamientoApi by lazy { retrofit.create(EntrenamientoApi::class.java) }
 }

@@ -65,12 +65,22 @@ app/src/main/java/com/example/pulseup/
 ├── ChangePasswordScreen.kt   # Cambio de contraseña
 ├── UserScreen.kt             # Administración de usuarios
 ├── data/
-│   ├── ApiService.kt         # Endpoints de la API (Retrofit)
-│   ├── Models.kt             # Modelos de datos
+│   ├── ApiService.kt         # Endpoints de usuarios, perfil y hábitos (Retrofit)
+│   ├── Models.kt             # Modelos de usuarios y hábitos
 │   ├── RetrofitClient.kt     # Cliente HTTP y URL del backend
-│   └── Session.kt            # Token y usuario de la sesión actual
+│   ├── Session.kt            # Token y usuario de la sesión actual
+│   ├── remote/               # EntrenamientoApi y DTO de ejercicios y rutinas
+│   ├── mapper/               # DTO -> modelos del dominio
+│   └── repository/           # Implementación de los repositorios
+├── domain/                   # Modelos, interfaces de repositorio y Resultado (sin Android)
+├── presentation/             # ViewModel + pantalla por función (ejercicios, rutinas, home)
+├── di/Dependencias.kt        # Arma los repositorios
 └── ui/theme/                 # Colores, tema y tipografía
 ```
+
+**Arquitectura:** las funciones nuevas (ejercicios y rutinas) siguen
+`presentation (pantalla + ViewModel) → domain (repositorio) → data (API)`.
+Las pantallas antiguas (login, home, perfil...) se irán migrando a este esquema.
 
 ## Autores
 

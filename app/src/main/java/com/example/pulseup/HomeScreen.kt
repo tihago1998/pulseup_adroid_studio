@@ -38,6 +38,7 @@ import com.example.pulseup.data.HabitoRequest
 import com.example.pulseup.data.ResumenDia
 import com.example.pulseup.data.RetrofitClient
 import com.example.pulseup.data.Session
+import com.example.pulseup.presentation.home.AccesoEntrenamiento
 import com.example.pulseup.ui.theme.PuBgSurface
 import com.example.pulseup.ui.theme.PuBorder
 import com.example.pulseup.ui.theme.PuTextSecondary
@@ -127,7 +128,9 @@ fun HomeScreen(
     onCambiarPasswordClick: () -> Unit = {},
     onNotificacionesClick: () -> Unit = {},
     onConfiguracionClick: () -> Unit = {},
-    onProgresoClick: () -> Unit = {}
+    onProgresoClick: () -> Unit = {},
+    onEjerciciosClick: () -> Unit = {},
+    onRutinasClick: () -> Unit = {}
 ) {
     val hoy = remember { LocalDate.now() }
 
@@ -445,6 +448,13 @@ fun HomeScreen(
                         )
                     }
                 }
+            }
+
+            item {
+                AccesoEntrenamiento(
+                    onEjerciciosClick = onEjerciciosClick,
+                    onRutinasClick = onRutinasClick
+                )
             }
 
             item {

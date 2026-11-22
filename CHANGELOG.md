@@ -5,6 +5,16 @@ Todos los cambios importantes de este proyecto se documentan en este archivo.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 ## [Unreleased]
 
+### Added
+
+- Catálogo de ejercicios con búsqueda y filtros por músculo y equipo, y detalle con instrucciones.
+- Rutinas: plantillas del sistema y rutinas propias (crear, ver y eliminar).
+- Accesos a Ejercicios y Rutinas en el Home.
+
+### Changed
+
+- Nueva estructura por capas (`data`, `domain`, `presentation`) para las funciones nuevas.
+
 ## [1.0.0] - 2026-10-26
 
 ### Added
