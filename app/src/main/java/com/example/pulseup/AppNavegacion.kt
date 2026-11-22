@@ -1,9 +1,12 @@
 package com.example.pulseup
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,6 +20,10 @@ import com.example.pulseup.presentation.ejercicios.EjercicioDetalleViewModel
 import com.example.pulseup.presentation.ejercicios.EjerciciosScreen
 import com.example.pulseup.presentation.ejercicios.EjerciciosViewModel
 import com.example.pulseup.presentation.fabricaDe
+import com.example.pulseup.presentation.plan.CalendarioScreen
+import com.example.pulseup.presentation.plan.CalendarioViewModel
+import com.example.pulseup.presentation.plan.PlanSemanalScreen
+import com.example.pulseup.presentation.plan.PlanSemanalViewModel
 import com.example.pulseup.presentation.rutinas.CrearRutinaScreen
 import com.example.pulseup.presentation.rutinas.CrearRutinaViewModel
 import com.example.pulseup.presentation.rutinas.RutinaDetalleScreen
@@ -56,7 +63,18 @@ fun AppNavegacion() {
                 }
             )
         }
-        composable("home") {
+        composable("home") { entrada ->
+            val planHoy: CalendarioViewModel = viewModel(
+                factory = fabricaDe { CalendarioViewModel(Dependencias.planRepository) }
+            )
+            // Al volver al Home desde el plan o el calendario, se refresca "Hoy toca"
+            DisposableEffect(entrada) {
+                val observador = LifecycleEventObserver { _, evento ->
+                    if (evento == Lifecycle.Event.ON_RESUME) planHoy.cargar()
+                }
+                entrada.lifecycle.addObserver(observador)
+                onDispose { entrada.lifecycle.removeObserver(observador) }
+            }
             HomeScreen(
                 nombre = Session.primerNombre,
                 onHabitoClick = { habito ->
@@ -81,6 +99,9 @@ fun AppNavegacion() {
                 },
                 onEjerciciosClick = { navController.navigate("ejercicios") },
                 onRutinasClick = { navController.navigate("rutinas") },
+                planHoy = planHoy,
+                onPlanClick = { navController.navigate("plan") },
+                onCalendarioClick = { navController.navigate("calendario") },
                 onProgresoClick = { /* pendiente */ },
                 onNotificacionesClick = { /* pendiente */ },
                 onConfiguracionClick = { /* pendiente */ }
@@ -116,6 +137,25 @@ fun AppNavegacion() {
         composable("changePassword") {
             ChangePasswordScreen(
                 onVolverClick = { navController.popBackStack() }
+            )
+        }
+        // ---------- Plan semanal y calendario ----------
+        composable("plan") {
+            val viewModel: PlanSemanalViewModel = viewModel(
+                factory = fabricaDe {
+                    PlanSemanalViewModel(Dependencias.planRepository, Dependencias.rutinasRepository)
+                }
+            )
+            PlanSemanalScreen(viewModel = viewModel, onVolver = { navController.popBackStack() })
+        }
+        composable("calendario") {
+            val viewModel: CalendarioViewModel = viewModel(
+                factory = fabricaDe { CalendarioViewModel(Dependencias.planRepository) }
+            )
+            CalendarioScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onPlanClick = { navController.navigate("plan") }
             )
         }
         // ---------- Ejercicios y rutinas ----------

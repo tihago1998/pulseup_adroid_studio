@@ -39,6 +39,8 @@ import com.example.pulseup.data.ResumenDia
 import com.example.pulseup.data.RetrofitClient
 import com.example.pulseup.data.Session
 import com.example.pulseup.presentation.home.AccesoEntrenamiento
+import com.example.pulseup.presentation.home.TarjetaPlanHoy
+import com.example.pulseup.presentation.plan.CalendarioViewModel
 import com.example.pulseup.ui.theme.PuBgSurface
 import com.example.pulseup.ui.theme.PuBorder
 import com.example.pulseup.ui.theme.PuTextSecondary
@@ -130,7 +132,10 @@ fun HomeScreen(
     onConfiguracionClick: () -> Unit = {},
     onProgresoClick: () -> Unit = {},
     onEjerciciosClick: () -> Unit = {},
-    onRutinasClick: () -> Unit = {}
+    onRutinasClick: () -> Unit = {},
+    planHoy: CalendarioViewModel? = null,
+    onPlanClick: () -> Unit = {},
+    onCalendarioClick: () -> Unit = {}
 ) {
     val hoy = remember { LocalDate.now() }
 
@@ -447,6 +452,16 @@ fun HomeScreen(
                             modifier = Modifier.weight(1f)
                         )
                     }
+                }
+            }
+
+            if (planHoy != null) {
+                item {
+                    TarjetaPlanHoy(
+                        viewModel = planHoy,
+                        onPlanClick = onPlanClick,
+                        onCalendarioClick = onCalendarioClick
+                    )
                 }
             }
 
