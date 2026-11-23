@@ -50,7 +50,7 @@ fun EjercicioDetalleScreen(viewModel: EjercicioDetalleViewModel, onVolver: () ->
                 Text(ejercicio.nombre, color = PuTextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Medium)
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    EtiquetaPu(textoBonito(ejercicio.grupoMuscular))
+                    EtiquetaPu(textoBonito(ejercicio.musculoPrincipal))
                     EtiquetaPu(textoBonito(ejercicio.equipo))
                     EtiquetaPu(textoBonito(ejercicio.nivel))
                 }
@@ -71,13 +71,13 @@ fun EjercicioDetalleScreen(viewModel: EjercicioDetalleViewModel, onVolver: () ->
                 ) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text("Cómo hacerlo", color = PuTextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                        ejercicio.instrucciones.forEachIndexed { indice, paso ->
+                        ejercicio.pasos.forEachIndexed { indice, paso ->
                             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                 Text("${indice + 1}.", color = PuAccent, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                                 Text(paso, color = PuTextSecondary, fontSize = 14.sp)
                             }
                         }
-                        if (ejercicio.instrucciones.isEmpty()) {
+                        if (ejercicio.pasos.isEmpty()) {
                             Text("Sin instrucciones", color = PuTextMuted, fontSize = 14.sp)
                         }
                     }

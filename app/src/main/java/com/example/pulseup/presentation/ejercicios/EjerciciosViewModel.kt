@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pulseup.domain.Resultado
 import com.example.pulseup.domain.model.Ejercicio
-import com.example.pulseup.domain.model.FiltrosEjercicio
+import com.example.pulseup.domain.model.FiltrosCatalogo
 import com.example.pulseup.domain.repository.EjerciciosRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -18,7 +18,7 @@ data class EjerciciosUiState(
     val cargando: Boolean = true,
     val error: String? = null,
     val ejercicios: List<Ejercicio> = emptyList(),
-    val filtros: FiltrosEjercicio? = null,
+    val filtros: FiltrosCatalogo? = null,
     val musculo: String? = null,
     val equipo: String? = null,
     val texto: String = ""

@@ -15,6 +15,9 @@ object RetrofitClient {
     // La URL del backend viene de local.properties (pulseup.baseUrl).
     private const val BASE_URL = BuildConfig.BASE_URL
 
+    /** URL del backend; los repositorios la usan para completar las rutas de las fotos. */
+    val baseUrl: String get() = BASE_URL
+
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }

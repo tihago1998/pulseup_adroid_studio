@@ -3,7 +3,7 @@ package com.example.pulseup.presentation.ejercicios
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pulseup.domain.Resultado
-import com.example.pulseup.domain.model.Ejercicio
+import com.example.pulseup.domain.model.EjercicioDetalle
 import com.example.pulseup.domain.repository.EjerciciosRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 data class EjercicioDetalleUiState(
     val cargando: Boolean = true,
     val error: String? = null,
-    val ejercicio: Ejercicio? = null
+    val ejercicio: EjercicioDetalle? = null
 )
 
 class EjercicioDetalleViewModel(
