@@ -15,6 +15,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.pulseup.data.Session
 import com.example.pulseup.di.Dependencias
+import com.example.pulseup.presentation.ejercicios.CreditosScreen
+import com.example.pulseup.presentation.ejercicios.CreditosViewModel
 import com.example.pulseup.presentation.ejercicios.EjercicioDetalleScreen
 import com.example.pulseup.presentation.ejercicios.EjercicioDetalleViewModel
 import com.example.pulseup.presentation.ejercicios.EjerciciosScreen
@@ -151,13 +153,22 @@ fun AppNavegacion() {
         // ---------- Ejercicios y rutinas ----------
         composable("ejercicios") {
             val viewModel: EjerciciosViewModel = viewModel(
-                factory = fabricaDe { EjerciciosViewModel(Dependencias.ejerciciosRepository) }
+                factory = fabricaDe {
+                    EjerciciosViewModel(Dependencias.ejerciciosRepository, Dependencias.perfilFisicoRepository)
+                }
             )
             EjerciciosScreen(
                 viewModel = viewModel,
                 onVolver = { navController.popBackStack() },
-                onEjercicioClick = { id -> navController.navigate("ejercicio/$id") }
+                onEjercicioClick = { id -> navController.navigate("ejercicio/$id") },
+                onCreditosClick = { navController.navigate("creditosEjercicios") }
             )
+        }
+        composable("creditosEjercicios") {
+            val viewModel: CreditosViewModel = viewModel(
+                factory = fabricaDe { CreditosViewModel(Dependencias.ejerciciosRepository) }
+            )
+            CreditosScreen(viewModel = viewModel, onVolver = { navController.popBackStack() })
         }
         composable(
             route = "ejercicio/{id}",

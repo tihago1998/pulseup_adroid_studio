@@ -81,12 +81,13 @@ fun PantallaPu(
     }
 }
 
-/** Botón redondeado tipo "chip" para filtros. */
+/** Botón redondeado tipo "chip" para filtros. [modifier] permite, por ejemplo, darle 48 dp de alto. */
 @Composable
-fun ChipPu(texto: String, seleccionado: Boolean, onClick: () -> Unit) {
+fun ChipPu(texto: String, seleccionado: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val forma = RoundedCornerShape(20.dp)
     Box(
-        modifier = Modifier
+        contentAlignment = Alignment.Center,
+        modifier = modifier
             .clip(forma)
             .background(if (seleccionado) PuAccent else PuBgCard)
             .border(0.5.dp, if (seleccionado) PuAccent else PuBorder, forma)
