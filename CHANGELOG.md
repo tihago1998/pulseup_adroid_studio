@@ -15,6 +15,9 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - Tarjeta "Hoy toca" en el Home con la rutina del día, la racha y el botón de marcar.
 - Pantalla "Mi perfil físico": fecha de nacimiento, sexo (opcional), peso, estatura y nivel, con validación local (edad de 14 a 100 años, peso de 30 a 300 kg, estatura de 100 a 250 cm) y opción de borrar los datos.
 - Acceso a "Mi perfil físico" en el Home, junto a Ejercicios y Rutinas.
+- Catálogo ampliado de ejercicios (Fase 1): fotos con Coil, filtros por lugar (Gimnasio / Casa / Calistenia), músculo, equipo y nivel (por defecto el del perfil físico) y paginación de 20 en 20 al llegar al final.
+- Detalle del ejercicio con fotos de inicio y final, pasos numerados, respiración, errores comunes, variantes fácil y difícil, y la recomendación personalizada (series, repeticiones o tiempo, descanso, reserva y peso aproximado).
+- Pantalla de créditos de las fotos del catálogo (fuentes y licencias).
 
 ### Changed
 
