@@ -69,11 +69,11 @@ app/src/main/java/com/example/pulseup/
 │   ├── Models.kt             # Modelos de usuarios y hábitos
 │   ├── RetrofitClient.kt     # Cliente HTTP y URL del backend
 │   ├── Session.kt            # Token y usuario de la sesión actual
-│   ├── remote/               # EntrenamientoApi, PlanApi y sus DTO
+│   ├── remote/               # EntrenamientoApi, PlanApi, PerfilFisicoApi y sus DTO
 │   ├── mapper/               # DTO -> modelos del dominio
 │   └── repository/           # Implementación de los repositorios
 ├── domain/                   # Modelos, interfaces de repositorio y Resultado (sin Android)
-├── presentation/             # ViewModel + pantalla por función (ejercicios, rutinas, plan, home)
+├── presentation/             # ViewModel + pantalla por función (ejercicios, rutinas, plan, perfil, home)
 ├── di/Dependencias.kt        # Arma los repositorios
 └── ui/theme/                 # Colores, tema y tipografía
 ```

@@ -13,6 +13,8 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - Plan semanal: asignar una rutina a cada día; el mensaje de la regla de descanso de 48 h del backend se muestra al usuario.
 - Calendario del mes con estados (cumplido 🔥, pendiente, incumplido, descanso), racha y botón para marcar la rutina de hoy.
 - Tarjeta "Hoy toca" en el Home con la rutina del día, la racha y el botón de marcar.
+- Pantalla "Mi perfil físico": fecha de nacimiento, sexo (opcional), peso, estatura y nivel, con validación local (edad de 14 a 100 años, peso de 30 a 300 kg, estatura de 100 a 250 cm) y opción de borrar los datos.
+- Acceso a "Mi perfil físico" en el Home, junto a Ejercicios y Rutinas.
 
 ### Changed
 

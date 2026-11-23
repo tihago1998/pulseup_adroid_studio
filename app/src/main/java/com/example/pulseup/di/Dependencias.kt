@@ -3,9 +3,11 @@ package com.example.pulseup.di
 import com.example.pulseup.data.RetrofitClient
 import com.example.pulseup.data.Session
 import com.example.pulseup.data.repository.EjerciciosRepositoryImpl
+import com.example.pulseup.data.repository.PerfilFisicoRepositoryImpl
 import com.example.pulseup.data.repository.PlanRepositoryImpl
 import com.example.pulseup.data.repository.RutinasRepositoryImpl
 import com.example.pulseup.domain.repository.EjerciciosRepository
+import com.example.pulseup.domain.repository.PerfilFisicoRepository
 import com.example.pulseup.domain.repository.PlanRepository
 import com.example.pulseup.domain.repository.RutinasRepository
 
@@ -19,5 +21,8 @@ object Dependencias {
     }
     val planRepository: PlanRepository by lazy {
         PlanRepositoryImpl(RetrofitClient.planApi) { Session.bearer() }
+    }
+    val perfilFisicoRepository: PerfilFisicoRepository by lazy {
+        PerfilFisicoRepositoryImpl(RetrofitClient.perfilFisicoApi) { Session.bearer() }
     }
 }
