@@ -25,11 +25,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.pulseup.PuAccent
-import com.example.pulseup.PuAccentDark
-import com.example.pulseup.PuBgCard
-import com.example.pulseup.PuTextMuted
-import com.example.pulseup.PuTextPrimary
+import com.example.pulseup.ui.theme.PuAccent
+import com.example.pulseup.ui.theme.PuAccentDark
+import com.example.pulseup.ui.theme.PuBgCard
+import com.example.pulseup.ui.theme.PuTextMuted
+import com.example.pulseup.ui.theme.PuTextPrimary
 import com.example.pulseup.domain.model.DiaPlan
 import com.example.pulseup.domain.model.Rutina
 import com.example.pulseup.presentation.componentes.EstadoCarga

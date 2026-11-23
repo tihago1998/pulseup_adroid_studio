@@ -26,8 +26,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.pulseup.PuAccent
-import com.example.pulseup.PuTextMuted
+import com.example.pulseup.ui.theme.PuAccent
+import com.example.pulseup.ui.theme.PuTextMuted
 import com.example.pulseup.ui.theme.PuBgSurface
 import com.example.pulseup.ui.theme.PuBorder
 

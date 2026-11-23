@@ -17,7 +17,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.pulseup.PuBgBase
+import com.example.pulseup.ui.theme.PuBgBase
 import com.example.pulseup.presentation.plan.CalendarioViewModel
 import kotlinx.coroutines.launch
 

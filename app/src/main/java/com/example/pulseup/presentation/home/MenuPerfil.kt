@@ -9,11 +9,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.example.pulseup.PuAccent
-import com.example.pulseup.PuAccentMid
-import com.example.pulseup.PuBgCard
-import com.example.pulseup.PuTextMuted
-import com.example.pulseup.PuTextPrimary
+import com.example.pulseup.ui.theme.PuAccent
+import com.example.pulseup.ui.theme.PuAccentMid
+import com.example.pulseup.ui.theme.PuBgCard
+import com.example.pulseup.ui.theme.PuTextMuted
+import com.example.pulseup.ui.theme.PuTextPrimary
 import com.example.pulseup.data.Session
 
 /**

@@ -18,6 +18,13 @@ import com.example.pulseup.data.UpdateRolesRequest
 import com.example.pulseup.data.Usuario
 import kotlinx.coroutines.launch
 import androidx.compose.ui.draw.clip
+import com.example.pulseup.ui.theme.PuAccent
+import com.example.pulseup.ui.theme.PuAccentDark
+import com.example.pulseup.ui.theme.PuAccentMid
+import com.example.pulseup.ui.theme.PuBgBase
+import com.example.pulseup.ui.theme.PuBgCard
+import com.example.pulseup.ui.theme.PuTextMuted
+import com.example.pulseup.ui.theme.PuTextPrimary
 
 @Composable
 fun UsersScreen(onVolverClick: () -> Unit = {}) {
