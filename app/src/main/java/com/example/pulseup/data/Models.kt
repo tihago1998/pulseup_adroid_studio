@@ -73,47 +73,6 @@ data class MessageResponse(
     val message: String?
 )
 
-// ---------- Hábitos ----------
-// Lo que el backend devuelve por cada hábito guardado
-data class Habito(
-    val id: Int,
-    val descripcion: String,
-    val categoria: String,
-    val fecha: String,
-    val completado: Boolean = false
-)
-
-// El backend responde { "habitos": [ ... ] }
-data class HabitosListResponse(
-    val habitos: List<Habito>?
-)
-
-// Lo que enviamos al registrar uno nuevo (el id_usuario sale del token, no se manda)
-// fecha va en formato YYYY-MM-DD; si es null, el backend usa hoy
-data class HabitoRequest(
-    val descripcion: String,
-    val categoria: String,
-    val fecha: String? = null
-)
-
-// Lo que enviamos para marcar o desmarcar un hábito como cumplido
-data class CompletadoRequest(
-    val completado: Boolean
-)
-
-// ---------- Resumen del calendario ----------
-// Un día con hábitos: cuántos hay y cuántos se cumplieron (la llama sale cuando son iguales)
-data class ResumenDia(
-    val fecha: String,
-    val total: Int,
-    val completados: Int
-)
-
-// El backend responde { "dias": [ ... ] }
-data class ResumenResponse(
-    val dias: List<ResumenDia>?
-)
-
 // ---------- Estadísticas ----------
 data class EstadisticasResponse(
     val total: Int,

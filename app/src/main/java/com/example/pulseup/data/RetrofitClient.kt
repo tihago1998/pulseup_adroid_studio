@@ -33,7 +33,7 @@ object RetrofitClient {
             .build()
     }
 
-    // Usuarios, perfil y hábitos
+    // Usuarios y perfil
     val api: ApiService by lazy { retrofit.create(ApiService::class.java) }
 
     // Ejercicios y rutinas

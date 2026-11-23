@@ -1,12 +1,14 @@
 # PulseUp (Android)
 
-Aplicación móvil nativa para Android que ayuda a las personas a registrar y dar seguimiento a sus hábitos saludables. Se conecta a la API de [PulseUp Backend](https://github.com/tihago1998/pulse_up_backend).
+Aplicación móvil nativa para Android que ayuda a las personas a planificar sus rutinas de ejercicio y a cumplirlas semana a semana. Se conecta a la API de [PulseUp Backend](https://github.com/tihago1998/pulse_up_backend).
 
 ## Características
 
 - Inicio de sesión y registro de usuarios.
 - Roles: Usuario, Administrador y SuperAdministrador.
-- Registro, listado y detalle de hábitos.
+- Catálogo de ejercicios y rutinas (plantillas y propias).
+- Plan semanal, calendario con racha y Home con la semana, "Hoy toca" y el progreso de la semana.
+- Perfil físico (edad, peso, estatura y nivel).
 - Edición de perfil y cambio de contraseña.
 - Administración de usuarios para los roles con permisos.
 
@@ -58,29 +60,28 @@ app/src/main/java/com/example/pulseup/
 ├── AppNavegacion.kt          # Rutas y navegación entre pantallas
 ├── LoginScreen.kt            # Inicio de sesión
 ├── RegisterScreen.kt         # Registro de usuarios
-├── HabitosScreen.kt          # Listado y registro de hábitos
-├── DetalleHabitoScreen.kt    # Detalle de un hábito
-├── PerfilScreen.kt           # Perfil del usuario
+├── PerfilScreen.kt           # Paleta de colores Pu* y tarjeta de perfil de ejemplo
 ├── EditProfileScreen.kt      # Edición de perfil
 ├── ChangePasswordScreen.kt   # Cambio de contraseña
 ├── UserScreen.kt             # Administración de usuarios
 ├── data/
-│   ├── ApiService.kt         # Endpoints de usuarios, perfil y hábitos (Retrofit)
-│   ├── Models.kt             # Modelos de usuarios y hábitos
+│   ├── ApiService.kt         # Endpoints de usuarios y perfil (Retrofit)
+│   ├── Models.kt             # Modelos de usuarios y perfil
+│   ├── FrasesMotivadoras.kt  # Frases del Home
 │   ├── RetrofitClient.kt     # Cliente HTTP y URL del backend
 │   ├── Session.kt            # Token y usuario de la sesión actual
 │   ├── remote/               # EntrenamientoApi, PlanApi, PerfilFisicoApi y sus DTO
 │   ├── mapper/               # DTO -> modelos del dominio
 │   └── repository/           # Implementación de los repositorios
-├── domain/                   # Modelos, interfaces de repositorio y Resultado (sin Android)
-├── presentation/             # ViewModel + pantalla por función (ejercicios, rutinas, plan, perfil, home)
+├── domain/                   # Modelos, lógica de la semana, interfaces de repositorio y Resultado (sin Android)
+├── presentation/             # ViewModel + pantalla por función (home, ejercicios, rutinas, plan, perfil)
 ├── di/Dependencias.kt        # Arma los repositorios
 └── ui/theme/                 # Colores, tema y tipografía
 ```
 
-**Arquitectura:** las funciones nuevas (ejercicios y rutinas) siguen
+**Arquitectura:** el Home, ejercicios, rutinas, plan y perfil físico siguen
 `presentation (pantalla + ViewModel) → domain (repositorio) → data (API)`.
-Las pantallas antiguas (login, home, perfil...) se irán migrando a este esquema.
+Las pantallas antiguas (login, registro, cuenta y usuarios) se irán migrando a este esquema.
 
 ## Autores
 
