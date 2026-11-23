@@ -22,16 +22,31 @@ import com.example.pulseup.PuTextMuted
 import com.example.pulseup.PuTextPrimary
 import com.example.pulseup.ui.theme.PuBorder
 
-/** Dos tarjetas en el Home que llevan al catálogo de ejercicios y a las rutinas. */
+/**
+ * Tarjetas del Home que llevan al catálogo de ejercicios, a las rutinas y,
+ * si se pasa [onPerfilFisicoClick], al perfil físico (debajo, a lo ancho).
+ */
 @Composable
 fun AccesoEntrenamiento(
     onEjerciciosClick: () -> Unit,
     onRutinasClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onPerfilFisicoClick: (() -> Unit)? = null
 ) {
-    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        TarjetaAcceso("🏋️", "Ejercicios", "Catálogo y filtros", onEjerciciosClick, Modifier.weight(1f))
-        TarjetaAcceso("📋", "Rutinas", "Plantillas y las tuyas", onRutinasClick, Modifier.weight(1f))
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            TarjetaAcceso("🏋️", "Ejercicios", "Catálogo y filtros", onEjerciciosClick, Modifier.weight(1f))
+            TarjetaAcceso("📋", "Rutinas", "Plantillas y las tuyas", onRutinasClick, Modifier.weight(1f))
+        }
+        if (onPerfilFisicoClick != null) {
+            TarjetaAcceso(
+                "📏",
+                "Mi perfil físico",
+                "Edad, peso, estatura y nivel",
+                onPerfilFisicoClick,
+                Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 

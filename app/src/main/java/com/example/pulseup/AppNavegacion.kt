@@ -20,6 +20,8 @@ import com.example.pulseup.presentation.ejercicios.EjercicioDetalleViewModel
 import com.example.pulseup.presentation.ejercicios.EjerciciosScreen
 import com.example.pulseup.presentation.ejercicios.EjerciciosViewModel
 import com.example.pulseup.presentation.fabricaDe
+import com.example.pulseup.presentation.perfil.PerfilFisicoScreen
+import com.example.pulseup.presentation.perfil.PerfilFisicoViewModel
 import com.example.pulseup.presentation.plan.CalendarioScreen
 import com.example.pulseup.presentation.plan.CalendarioViewModel
 import com.example.pulseup.presentation.plan.PlanSemanalScreen
@@ -102,6 +104,7 @@ fun AppNavegacion() {
                 planHoy = planHoy,
                 onPlanClick = { navController.navigate("plan") },
                 onCalendarioClick = { navController.navigate("calendario") },
+                onPerfilFisicoClick = { navController.navigate("perfilFisico") },
                 onProgresoClick = { /* pendiente */ },
                 onNotificacionesClick = { /* pendiente */ },
                 onConfiguracionClick = { /* pendiente */ }
@@ -156,6 +159,17 @@ fun AppNavegacion() {
                 viewModel = viewModel,
                 onVolver = { navController.popBackStack() },
                 onPlanClick = { navController.navigate("plan") }
+            )
+        }
+        // ---------- Perfil físico ----------
+        composable("perfilFisico") {
+            val viewModel: PerfilFisicoViewModel = viewModel(
+                factory = fabricaDe { PerfilFisicoViewModel(Dependencias.perfilFisicoRepository) }
+            )
+            PerfilFisicoScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onGuardado = { navController.popBackStack() }
             )
         }
         // ---------- Ejercicios y rutinas ----------

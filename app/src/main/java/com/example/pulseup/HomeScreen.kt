@@ -135,7 +135,8 @@ fun HomeScreen(
     onRutinasClick: () -> Unit = {},
     planHoy: CalendarioViewModel? = null,
     onPlanClick: () -> Unit = {},
-    onCalendarioClick: () -> Unit = {}
+    onCalendarioClick: () -> Unit = {},
+    onPerfilFisicoClick: () -> Unit = {}
 ) {
     val hoy = remember { LocalDate.now() }
 
@@ -468,7 +469,8 @@ fun HomeScreen(
             item {
                 AccesoEntrenamiento(
                     onEjerciciosClick = onEjerciciosClick,
-                    onRutinasClick = onRutinasClick
+                    onRutinasClick = onRutinasClick,
+                    onPerfilFisicoClick = onPerfilFisicoClick
                 )
             }
 
