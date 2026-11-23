@@ -40,4 +40,17 @@ class EjercicioDetalleViewModel(
             }
         }
     }
+
+    /**
+     * Al volver a la pantalla (por ejemplo, después de llenar el perfil físico): si no había
+     * recomendación, se pide otra vez el detalle sin quitar lo que ya se ve. Si falla, se deja como estaba.
+     */
+    fun refrescarRecomendacion() {
+        val actual = _estado.value.ejercicio ?: return
+        if (actual.recomendacion != null || _estado.value.cargando) return
+        viewModelScope.launch {
+            val resultado = repositorio.detalle(id)
+            if (resultado is Resultado.Exito) _estado.update { it.copy(ejercicio = resultado.datos) }
+        }
+    }
 }

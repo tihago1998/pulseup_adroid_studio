@@ -178,7 +178,19 @@ fun AppNavegacion() {
             val viewModel: EjercicioDetalleViewModel = viewModel(
                 factory = fabricaDe { EjercicioDetalleViewModel(Dependencias.ejerciciosRepository, id) }
             )
-            EjercicioDetalleScreen(viewModel = viewModel, onVolver = { navController.popBackStack() })
+            // Al volver de Perfil físico se pide otra vez la recomendación (si antes no había)
+            DisposableEffect(entrada) {
+                val observador = LifecycleEventObserver { _, evento ->
+                    if (evento == Lifecycle.Event.ON_RESUME) viewModel.refrescarRecomendacion()
+                }
+                entrada.lifecycle.addObserver(observador)
+                onDispose { entrada.lifecycle.removeObserver(observador) }
+            }
+            EjercicioDetalleScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onPerfilFisicoClick = { navController.navigate("perfilFisico") }
+            )
         }
         composable("rutinas") { entrada ->
             val viewModel: RutinasViewModel = viewModel(
