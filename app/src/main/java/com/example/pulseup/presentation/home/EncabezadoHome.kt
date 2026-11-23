@@ -13,8 +13,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.pulseup.PuTextMuted
-import com.example.pulseup.PuTextPrimary
+import com.example.pulseup.ui.theme.PuTextMuted
+import com.example.pulseup.ui.theme.PuTextPrimary
 import com.example.pulseup.ui.theme.PuTextSecondary
 import java.time.LocalTime
 

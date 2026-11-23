@@ -21,12 +21,17 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - Nueva estructura por capas (`data`, `domain`, `presentation`) para las funciones nuevas.
 - Home rehecho en `presentation/home` y alimentado solo por el plan semanal y el calendario: saludo, frase motivadora, tira de la semana (L a D) con el estado de cada día, "Hoy toca", progreso de la semana ("X de Y rutinas") y accesos a Ejercicios, Rutinas y Mi perfil físico. Se actualiza al volver al Home y al marcar la rutina de hoy.
 - Barra inferior del Home con Inicio, Calendario, Ejercicios y Perfil (sin botón central).
+- Los colores `Pu*` se definen todos en `ui/theme/Color.kt` (mismos valores); se borra `PerfilScreen.kt` con la tarjeta `TarjetaPerfil`, que no se usaba.
 
 ### Removed
 
 - Hábitos en la app: lista, creación y detalle de hábitos, tarjetas de Ejercicio, Alimentación y Sueño, calendario de hábitos y "Progreso de hoy" basado en hábitos.
 - Botones sin función del Home: Configuración, Progreso y Avisos.
 - Endpoints y modelos de hábitos y de resumen en `ApiService` y `Models`.
+
+### Fixed
+
+- Administración de usuarios: si falla la carga se muestra el error con un botón Reintentar, y los errores al cambiar un rol o eliminar un usuario muestran el mensaje del servidor o de conexión (antes se ocultaban).
 
 ## [1.0.0] - 2026-10-26
 

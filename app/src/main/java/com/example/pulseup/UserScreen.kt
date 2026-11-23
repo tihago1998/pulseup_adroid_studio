@@ -16,39 +16,67 @@ import com.example.pulseup.data.RetrofitClient
 import com.example.pulseup.data.Session
 import com.example.pulseup.data.UpdateRolesRequest
 import com.example.pulseup.data.Usuario
+import com.example.pulseup.data.repository.ejecutar
+import com.example.pulseup.domain.Resultado
+import com.example.pulseup.presentation.componentes.EstadoCarga
+import com.example.pulseup.presentation.componentes.EstadoError
 import kotlinx.coroutines.launch
+import retrofit2.Response
 import androidx.compose.ui.draw.clip
+import com.example.pulseup.ui.theme.PuAccent
+import com.example.pulseup.ui.theme.PuAccentDark
+import com.example.pulseup.ui.theme.PuAccentMid
+import com.example.pulseup.ui.theme.PuBgBase
+import com.example.pulseup.ui.theme.PuBgCard
+import com.example.pulseup.ui.theme.PuTextMuted
+import com.example.pulseup.ui.theme.PuTextPrimary
 
 @Composable
 fun UsersScreen(onVolverClick: () -> Unit = {}) {
     var usuarios by remember { mutableStateOf<List<Usuario>>(emptyList()) }
     var estadisticas by remember { mutableStateOf<EstadisticasResponse?>(null) }
     var mensaje by remember { mutableStateOf("") }
+    var cargando by remember { mutableStateOf(true) }
+    var errorCarga by remember { mutableStateOf<String?>(null) }
 
     val scope = rememberCoroutineScope()
     val miId = Session.usuario?.id_usuario
     val soySuperAdmin = Session.isSuperAdmin
 
-    suspend fun cargarUsuarios() {
-        val resp = RetrofitClient.api.getUsers(Session.bearer())
-        if (resp.isSuccessful) {
-            usuarios = resp.body()?.usuarios ?: emptyList()
+    // Trae usuarios y estadísticas con el mismo manejo de errores del resto de la app.
+    // Devuelve el mensaje del primer error, o null si todo salió bien.
+    suspend fun recargar(): String? {
+        val rUsuarios = ejecutar({ RetrofitClient.api.getUsers(Session.bearer()) }) { it.usuarios.orEmpty() }
+        val rEstadisticas = ejecutar({ RetrofitClient.api.getEstadisticas(Session.bearer()) }) { it }
+        if (rUsuarios is Resultado.Exito) usuarios = rUsuarios.datos
+        if (rEstadisticas is Resultado.Exito) estadisticas = rEstadisticas.datos
+        return (rUsuarios as? Resultado.Fallo)?.mensaje ?: (rEstadisticas as? Resultado.Fallo)?.mensaje
+    }
+
+    fun cargar() {
+        scope.launch {
+            cargando = true
+            errorCarga = recargar()
+            cargando = false
+            // Si la lista sí cargó (falló solo una parte), el error se avisa arriba de la lista
+            if (errorCarga != null && usuarios.isNotEmpty()) mensaje = "⚠️ $errorCarga"
         }
     }
 
-    suspend fun cargarEstadisticas() {
-        val resp = RetrofitClient.api.getEstadisticas(Session.bearer())
-        if (resp.isSuccessful) {
-            estadisticas = resp.body()
+    // Cambiar rol o eliminar: muestra el resultado y, si salió bien, recarga la lista
+    fun <D> accion(textoExito: String, textoFallo: String, llamada: suspend () -> Response<D>) {
+        scope.launch {
+            when (val r = ejecutar(llamada) { }) {
+                is Resultado.Exito -> {
+                    mensaje = textoExito
+                    recargar()?.let { mensaje = "$textoExito. ⚠️ No se pudo actualizar la lista: $it" }
+                }
+                is Resultado.Fallo -> mensaje = "❌ $textoFallo: ${r.mensaje}"
+            }
         }
     }
 
-    LaunchedEffect(Unit) {
-        try {
-            cargarUsuarios()
-            cargarEstadisticas()
-        } catch (_: Exception) { }
-    }
+    LaunchedEffect(Unit) { cargar() }
 
     Box(
         modifier = Modifier
@@ -91,7 +119,13 @@ fun UsersScreen(onVolverClick: () -> Unit = {}) {
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            LazyColumn(
+            // Sin datos todavía: carga, o error con Reintentar. Con datos: la lista.
+            if (usuarios.isEmpty() && (cargando || errorCarga != null)) {
+                Box(modifier = Modifier.weight(1f)) {
+                    if (cargando) EstadoCarga()
+                    else EstadoError(errorCarga.orEmpty(), onReintentar = { cargar() })
+                }
+            } else LazyColumn(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -132,18 +166,10 @@ fun UsersScreen(onVolverClick: () -> Unit = {}) {
                                 if (esAdmin) {
                                     OutlinedButton(
                                         onClick = {
-                                            scope.launch {
-                                                try {
-                                                    val resp = RetrofitClient.api.updateRoles(
-                                                        Session.bearer(), u.id_usuario, UpdateRolesRequest(role_ids = listOf(2))
-                                                    )
-                                                    mensaje = if (resp.isSuccessful) "✅ ${u.nombre} ahora es usuario"
-                                                    else "❌ No se pudo quitar el rol (${resp.code()})"
-                                                    cargarUsuarios()
-                                                    cargarEstadisticas()
-                                                } catch (e: Exception) {
-                                                    mensaje = "⚠️ ${e.message}"
-                                                }
+                                            accion("✅ ${u.nombre} ahora es usuario", "No se pudo quitar el rol") {
+                                                RetrofitClient.api.updateRoles(
+                                                    Session.bearer(), u.id_usuario, UpdateRolesRequest(role_ids = listOf(2))
+                                                )
                                             }
                                         },
                                         colors = ButtonDefaults.outlinedButtonColors(contentColor = PuAccent)
@@ -153,18 +179,10 @@ fun UsersScreen(onVolverClick: () -> Unit = {}) {
                                 } else {
                                     Button(
                                         onClick = {
-                                            scope.launch {
-                                                try {
-                                                    val resp = RetrofitClient.api.updateRoles(
-                                                        Session.bearer(), u.id_usuario, UpdateRolesRequest(role_ids = listOf(1))
-                                                    )
-                                                    mensaje = if (resp.isSuccessful) "✅ ${u.nombre} ahora es administrador"
-                                                    else "❌ No se pudo asignar el rol (${resp.code()})"
-                                                    cargarUsuarios()
-                                                    cargarEstadisticas()
-                                                } catch (e: Exception) {
-                                                    mensaje = "⚠️ ${e.message}"
-                                                }
+                                            accion("✅ ${u.nombre} ahora es administrador", "No se pudo asignar el rol") {
+                                                RetrofitClient.api.updateRoles(
+                                                    Session.bearer(), u.id_usuario, UpdateRolesRequest(role_ids = listOf(1))
+                                                )
                                             }
                                         },
                                         colors = ButtonDefaults.buttonColors(containerColor = PuAccent, contentColor = PuAccentDark)
@@ -178,16 +196,8 @@ fun UsersScreen(onVolverClick: () -> Unit = {}) {
                             if (puedoEliminar) {
                                 OutlinedButton(
                                     onClick = {
-                                        scope.launch {
-                                            try {
-                                                val resp = RetrofitClient.api.eliminarUsuario(Session.bearer(), u.id_usuario)
-                                                mensaje = if (resp.isSuccessful) "🗑️ ${u.nombre} eliminado"
-                                                else "❌ No se pudo eliminar (${resp.code()})"
-                                                cargarUsuarios()
-                                                cargarEstadisticas()
-                                            } catch (e: Exception) {
-                                                mensaje = "⚠️ ${e.message}"
-                                            }
+                                        accion("🗑️ ${u.nombre} eliminado", "No se pudo eliminar") {
+                                            RetrofitClient.api.eliminarUsuario(Session.bearer(), u.id_usuario)
                                         }
                                     },
                                     colors = ButtonDefaults.outlinedButtonColors(contentColor = PuAccentMid)

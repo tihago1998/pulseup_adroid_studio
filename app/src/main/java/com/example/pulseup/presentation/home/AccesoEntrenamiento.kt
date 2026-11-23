@@ -17,9 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.pulseup.PuBgCard
-import com.example.pulseup.PuTextMuted
-import com.example.pulseup.PuTextPrimary
+import com.example.pulseup.ui.theme.PuBgCard
+import com.example.pulseup.ui.theme.PuTextMuted
+import com.example.pulseup.ui.theme.PuTextPrimary
 import com.example.pulseup.ui.theme.PuBorder
 
 /**
