@@ -77,6 +77,8 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    // Coil: carga de las fotos de los ejercicios
+    implementation(libs.coil.compose)
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     // DataStore para preferencias (reemplazo de SharedPreferences)
@@ -86,6 +88,8 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     // Testing
     testImplementation(libs.junit)
+    // Pruebas de ViewModels: reemplaza Dispatchers.Main y controla el tiempo virtual
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
