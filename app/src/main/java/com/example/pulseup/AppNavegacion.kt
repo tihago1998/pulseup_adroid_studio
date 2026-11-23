@@ -20,6 +20,8 @@ import com.example.pulseup.presentation.ejercicios.EjercicioDetalleViewModel
 import com.example.pulseup.presentation.ejercicios.EjerciciosScreen
 import com.example.pulseup.presentation.ejercicios.EjerciciosViewModel
 import com.example.pulseup.presentation.fabricaDe
+import com.example.pulseup.presentation.home.HomeScreen
+import com.example.pulseup.presentation.home.HomeViewModel
 import com.example.pulseup.presentation.perfil.PerfilFisicoScreen
 import com.example.pulseup.presentation.perfil.PerfilFisicoViewModel
 import com.example.pulseup.presentation.plan.CalendarioScreen
@@ -32,8 +34,6 @@ import com.example.pulseup.presentation.rutinas.RutinaDetalleScreen
 import com.example.pulseup.presentation.rutinas.RutinaDetalleViewModel
 import com.example.pulseup.presentation.rutinas.RutinasScreen
 import com.example.pulseup.presentation.rutinas.RutinasViewModel
-import java.net.URLDecoder
-import java.net.URLEncoder
 
 @Composable
 fun AppNavegacion() {
@@ -69,7 +69,11 @@ fun AppNavegacion() {
             val planHoy: CalendarioViewModel = viewModel(
                 factory = fabricaDe { CalendarioViewModel(Dependencias.planRepository) }
             )
-            // Al volver al Home desde el plan o el calendario, se refresca "Hoy toca"
+            val homeViewModel: HomeViewModel = viewModel(
+                factory = fabricaDe { HomeViewModel(Dependencias.planRepository) }
+            )
+            // Al volver al Home (desde el plan, el calendario...) se refresca "Hoy toca";
+            // al terminar, el Home recalcula la tira de la semana y el progreso.
             DisposableEffect(entrada) {
                 val observador = LifecycleEventObserver { _, evento ->
                     if (evento == Lifecycle.Event.ON_RESUME) planHoy.cargar()
@@ -79,52 +83,24 @@ fun AppNavegacion() {
             }
             HomeScreen(
                 nombre = Session.primerNombre,
-                onHabitoClick = { habito ->
-                    val descEncoded = URLEncoder.encode(habito.descripcion, "UTF-8")
-                    navController.navigate("detalle/$descEncoded/${habito.categoria}")
-                },
-                onAdminClick = {
-                    navController.navigate("users")
-                },
+                frase = Session.frase,
+                viewModel = homeViewModel,
+                planHoy = planHoy,
+                onPlanClick = { navController.navigate("plan") },
+                onCalendarioClick = { navController.navigate("calendario") },
+                onEjerciciosClick = { navController.navigate("ejercicios") },
+                onRutinasClick = { navController.navigate("rutinas") },
+                onPerfilFisicoClick = { navController.navigate("perfilFisico") },
+                onEditarPerfilClick = { navController.navigate("editProfile") },
+                onCambiarPasswordClick = { navController.navigate("changePassword") },
+                onAdminClick = { navController.navigate("users") },
                 onCerrarSesion = {
                     // Vamos a "login" y borramos "home" del historial,
                     // para que el botón "atrás" no regrese a una sesión ya cerrada
                     navController.navigate("login") {
                         popUpTo("home") { inclusive = true }
                     }
-                },
-                onEditarPerfilClick = {
-                    navController.navigate("editProfile")
-                },
-                onCambiarPasswordClick = {
-                    navController.navigate("changePassword")
-                },
-                onEjerciciosClick = { navController.navigate("ejercicios") },
-                onRutinasClick = { navController.navigate("rutinas") },
-                planHoy = planHoy,
-                onPlanClick = { navController.navigate("plan") },
-                onCalendarioClick = { navController.navigate("calendario") },
-                onPerfilFisicoClick = { navController.navigate("perfilFisico") },
-                onProgresoClick = { /* pendiente */ },
-                onNotificacionesClick = { /* pendiente */ },
-                onConfiguracionClick = { /* pendiente */ }
-            )
-        }
-        composable(
-            route = "detalle/{descripcion}/{categoria}",
-            arguments = listOf(
-                navArgument("descripcion") { type = NavType.StringType },
-                navArgument("categoria") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val descEncoded = backStackEntry.arguments?.getString("descripcion") ?: ""
-            val descripcion = URLDecoder.decode(descEncoded, "UTF-8")
-            val categoria = backStackEntry.arguments?.getString("categoria") ?: ""
-
-            DetalleHabitoScreen(
-                descripcion = descripcion,
-                categoria = categoria,
-                onVolverClick = { navController.popBackStack() }
+                }
             )
         }
         composable("users") {
