@@ -24,3 +24,7 @@ val PuAccentMid = Color(0xFFAFA9EC)
 val PuTextPrimary = Color(0xFFFFFFFF)
 val PuTextSecondary = Color(0xFFB8B4AE)
 val PuTextMuted = Color(0xFF837F79)
+
+// Estados: error o acción destructiva, y advertencia que no bloquea (por ejemplo, la regla de 48 h)
+val PuRojo = Color(0xFFE5645F)
+val PuAdvertencia = Color(0xFFE8B04B)

@@ -26,7 +26,7 @@ import com.example.pulseup.ui.theme.PuTextMuted
 import com.example.pulseup.ui.theme.PuTextPrimary
 import com.example.pulseup.domain.model.DiaDeSemana
 import com.example.pulseup.domain.model.EstadoDia
-import com.example.pulseup.presentation.plan.PuRojo
+import com.example.pulseup.ui.theme.PuRojo
 import com.example.pulseup.ui.theme.PuTextSecondary
 
 private val LETRAS_DIA = listOf("L", "M", "M", "J", "V", "S", "D")
