@@ -98,6 +98,14 @@ fun PlanSemanalScreen(
         )
     }
 
+    estado.porReemplazar?.let { r ->
+        DialogoReemplazo(
+            texto = r.texto,
+            onReemplazar = viewModel::confirmarReemplazo,
+            onCancelar = viewModel::cancelarReemplazo
+        )
+    }
+
     estado.porConfirmar?.let { p ->
         DialogoAvisos(
             titulo = if (p.nombreRutina.isBlank()) "¿Asignar al ${p.nombreDia}?" else "¿Asignar ${p.nombreRutina} al ${p.nombreDia}?",

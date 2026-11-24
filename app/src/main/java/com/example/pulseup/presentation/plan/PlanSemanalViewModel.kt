@@ -25,6 +25,11 @@ data class AsignacionPorConfirmar(
     val avisos: List<AvisoDescanso>
 )
 
+/** Rutina elegida para un día que ya tiene ejercicios: se pide "Reemplazar" antes de seguir. */
+data class ReemplazoPorConfirmar(val dia: Int, val nombreDia: String, val idRutina: Int) {
+    val texto: String get() = textoReemplazo(listOf(nombreDia))
+}
+
 data class PlanSemanalUiState(
     val cargando: Boolean = true,
     val error: String? = null,
@@ -33,6 +38,7 @@ data class PlanSemanalUiState(
     /** Día (1-7) para el que se está eligiendo rutina; null = selector cerrado. */
     val diaEditando: Int? = null,
     val guardando: Boolean = false,
+    val porReemplazar: ReemplazoPorConfirmar? = null,
     val porConfirmar: AsignacionPorConfirmar? = null,
     /** Resultado del último cambio: guardado, avisos de 48 h o error. */
     val notas: List<Nota> = emptyList()
@@ -85,11 +91,32 @@ class PlanSemanalViewModel(
     fun cerrarNota(nota: Nota) = _estado.update { it.copy(notas = it.notas - nota) }
 
     /**
-     * Antes de asignar se piden los avisos de 48 h de la rutina en ese día. Sin avisos se asigna
-     * directo; con avisos se pide confirmar (la regla solo avisa: siempre se puede seguir).
+     * Si el día ya tiene ejercicios, primero se confirma el reemplazo. Luego se piden los avisos de
+     * 48 h de la rutina en ese día: sin avisos se asigna directo; con avisos se pide confirmar
+     * (la regla solo avisa: siempre se puede seguir).
      */
     fun elegirRutina(idRutina: Int) {
         val dia = _estado.value.diaEditando ?: return
+        val actual = _estado.value.dias.firstOrNull { it.diaSemana == dia }
+        if (actual?.tieneContenido == true) {
+            _estado.update {
+                it.copy(diaEditando = null, notas = emptyList(), porReemplazar = ReemplazoPorConfirmar(dia, nombreDia(dia), idRutina))
+            }
+            return
+        }
+        previsualizarYAsignar(dia, idRutina)
+    }
+
+    /** "Reemplazar". */
+    fun confirmarReemplazo() {
+        val r = _estado.value.porReemplazar ?: return
+        _estado.update { it.copy(porReemplazar = null) }
+        previsualizarYAsignar(r.dia, r.idRutina)
+    }
+
+    fun cancelarReemplazo() = _estado.update { it.copy(porReemplazar = null) }
+
+    private fun previsualizarYAsignar(dia: Int, idRutina: Int) {
         viewModelScope.launch {
             _estado.update { it.copy(guardando = true, diaEditando = null, notas = emptyList()) }
             when (val r = plan.previsualizarRutina(idRutina)) {

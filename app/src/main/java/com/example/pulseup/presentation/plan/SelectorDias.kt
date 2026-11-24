@@ -186,6 +186,27 @@ fun DialogoAvisos(
     )
 }
 
+/** Asignar una rutina reemplaza lo que ya tiene el día: se confirma con "Reemplazar". */
+@Composable
+fun DialogoReemplazo(
+    texto: String,
+    onReemplazar: () -> Unit,
+    onCancelar: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onCancelar,
+        containerColor = PuBgCard,
+        title = { Text("¿Cambiar la rutina?", color = PuTextPrimary, fontSize = 18.sp) },
+        text = { Text(texto, color = PuTextSecondary, fontSize = 15.sp) },
+        confirmButton = {
+            TextButton(onClick = onReemplazar, modifier = Modifier.heightIn(min = 48.dp)) { Text("Reemplazar", color = PuRojo) }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancelar, modifier = Modifier.heightIn(min = 48.dp)) { Text("Cancelar", color = PuAccent) }
+        }
+    )
+}
+
 /** Tarjeta de un mensaje del plan (guardado, aviso de 48 h, copia de rutina o error). Tocarla la cierra. */
 @Composable
 fun TarjetaNota(nota: Nota, onCerrar: (() -> Unit)? = null) {

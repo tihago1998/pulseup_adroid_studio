@@ -14,7 +14,10 @@ data class DiaPlan(
     val rutina: RutinaPlan?,
     /** Ejercicios de la rutina de ese día (vacío en descanso o si el backend no los manda). */
     val ejercicios: List<EjercicioPlan> = emptyList()
-)
+) {
+    /** Tiene rutina o ejercicios: asignarle otra rutina los reemplaza. */
+    val tieneContenido: Boolean get() = rutina != null || ejercicios.isNotEmpty()
+}
 
 private val NOMBRES_DIAS = listOf("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
 

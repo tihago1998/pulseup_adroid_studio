@@ -52,8 +52,10 @@ import com.example.pulseup.presentation.componentes.ChipPu
 import com.example.pulseup.presentation.componentes.PantallaPu
 import com.example.pulseup.presentation.componentes.coloresCampoPu
 import com.example.pulseup.presentation.componentes.textoBonito
+import com.example.pulseup.presentation.plan.DialogoReemplazo
 import com.example.pulseup.presentation.plan.HojaDias
 import com.example.pulseup.presentation.plan.TarjetaNota
+import com.example.pulseup.presentation.plan.textoReemplazo
 import com.example.pulseup.ui.theme.PuBorder
 
 @Composable
@@ -141,7 +143,16 @@ fun CrearRutinaScreen(
         }
     }
 
-    estado.ofrecerPlan?.let { oferta -> HojaPonerEnPlan(oferta, viewModel) }
+    estado.ofrecerPlan?.let { oferta ->
+        HojaPonerEnPlan(oferta, viewModel)
+        oferta.porReemplazar?.let { dias ->
+            DialogoReemplazo(
+                texto = textoReemplazo(dias),
+                onReemplazar = viewModel::confirmarReemplazo,
+                onCancelar = viewModel::cancelarReemplazo
+            )
+        }
+    }
 
     if (eligiendo) {
         SelectorEjercicio(

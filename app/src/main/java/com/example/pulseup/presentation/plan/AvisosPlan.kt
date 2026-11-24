@@ -21,6 +21,9 @@ fun textoRutinaCopiada(nombreDia: String): String =
 fun textoYaEstaEnElDia(nombreDia: String): String =
     "Este ejercicio ya está en tu plan del $nombreDia. Elige otro día."
 
+/** Confirmación antes de asignar una rutina a días que ya tienen ejercicios: "Esto reemplazará los ejercicios de lunes". */
+fun textoReemplazo(nombresDias: List<String>): String = "Esto reemplazará los ejercicios de ${unirDias(nombresDias)}"
+
 /** ["lunes"] -> "lunes"; ["lunes", "jueves"] -> "lunes y jueves"; con tres o más, comas y "y" al final. */
 fun unirDias(nombres: List<String>): String = when (nombres.size) {
     0 -> ""

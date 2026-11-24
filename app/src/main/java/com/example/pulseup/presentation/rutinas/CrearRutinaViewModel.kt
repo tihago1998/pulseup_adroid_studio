@@ -54,6 +54,8 @@ data class OfrecerPlanUiState(
     val dias: List<DiaPrevisualizado> = emptyList(),
     val seleccionados: Set<Int> = emptySet(),
     val guardando: Boolean = false,
+    /** Días elegidos que ya tienen rutina: se confirma "Reemplazar" antes de asignar. null = sin preguntar. */
+    val porReemplazar: List<String>? = null,
     /** Resumen al terminar (días agregados, avisos de 48 h y errores); null = aún eligiendo. */
     val resumen: List<Nota>? = null
 )
@@ -164,10 +166,30 @@ class CrearRutinaViewModel(
         }
     }
 
-    /** Asigna la rutina a cada día elegido (PUT api/plan/{dia}) y resume avisos y errores al terminar. */
+    /** "Agregar al plan": si algún día elegido ya tiene rutina, primero se confirma el reemplazo. */
     fun agregarAlPlan() {
         val oferta = _estado.value.ofrecerPlan ?: return
         if (oferta.guardando || oferta.seleccionados.isEmpty()) return
+        val conContenido = oferta.dias.filter { it.dia in oferta.seleccionados && it.tieneRutina }.sortedBy { it.dia }
+        if (conContenido.isNotEmpty()) {
+            actualizarOferta { it.copy(porReemplazar = conContenido.map { d -> d.nombreDia.ifBlank { nombreDiaSemana(d.dia) } }) }
+            return
+        }
+        asignarDias(oferta)
+    }
+
+    /** "Reemplazar". */
+    fun confirmarReemplazo() {
+        val oferta = _estado.value.ofrecerPlan ?: return
+        if (oferta.porReemplazar == null) return
+        actualizarOferta { it.copy(porReemplazar = null) }
+        asignarDias(oferta)
+    }
+
+    fun cancelarReemplazo() = actualizarOferta { it.copy(porReemplazar = null) }
+
+    /** Asigna la rutina a cada día elegido (PUT api/plan/{dia}) y resume avisos y errores al terminar. */
+    private fun asignarDias(oferta: OfrecerPlanUiState) {
         viewModelScope.launch {
             actualizarOferta { it.copy(guardando = true) }
             val agregados = mutableListOf<String>()
