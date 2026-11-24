@@ -69,12 +69,15 @@ fun detalle(recomendacion: RecomendacionEjercicio? = null, motivo: String? = "Co
         recomendacion = recomendacion, recomendacionMotivo = if (recomendacion == null) motivo else null
     )
 
-/** Perfil físico falso: con [nivel] null responde que el usuario aún no tiene perfil. */
-class PerfilFisicoFalso(private val nivel: String?, private val falla: Boolean = false) : PerfilFisicoRepository {
-    override suspend fun obtener(): Resultado<PerfilFisico?> = when {
-        falla -> Resultado.Fallo("Sin conexión")
-        nivel == null -> Resultado.Exito(null)
-        else -> Resultado.Exito(PerfilFisico("1998-03-10", 28, "hombre", 72.5, 175.0, nivel, ""))
+/** Perfil físico falso: con [nivel] null responde que el usuario aún no tiene perfil. Se puede cambiar en la prueba. */
+class PerfilFisicoFalso(var nivel: String?, var falla: Boolean = false) : PerfilFisicoRepository {
+    override suspend fun obtener(): Resultado<PerfilFisico?> {
+        val actual = nivel
+        return when {
+            falla -> Resultado.Fallo("Sin conexión")
+            actual == null -> Resultado.Exito(null)
+            else -> Resultado.Exito(PerfilFisico("1998-03-10", 28, "hombre", 72.5, 175.0, actual, ""))
+        }
     }
 
     override suspend fun guardar(nuevo: NuevoPerfilFisico) = Resultado.Fallo("no se usa")

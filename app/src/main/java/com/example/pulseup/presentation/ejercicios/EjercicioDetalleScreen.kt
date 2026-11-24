@@ -66,14 +66,24 @@ fun EjercicioDetalleScreen(
         when {
             estado.cargando && ejercicio == null -> EstadoCarga()
             estado.error != null -> EstadoError(estado.error!!, viewModel::cargar)
-            ejercicio != null -> ContenidoDetalle(ejercicio, onPerfilFisicoClick, Modifier.weight(1f))
+            ejercicio != null -> ContenidoDetalle(
+                e = ejercicio,
+                mostrarIrAPerfil = estado.mostrarIrAPerfil,
+                onPerfilFisicoClick = onPerfilFisicoClick,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ContenidoDetalle(e: EjercicioDetalle, onPerfilFisicoClick: () -> Unit, modifier: Modifier) {
+private fun ContenidoDetalle(
+    e: EjercicioDetalle,
+    mostrarIrAPerfil: Boolean,
+    onPerfilFisicoClick: () -> Unit,
+    modifier: Modifier
+) {
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -96,7 +106,7 @@ private fun ContenidoDetalle(e: EjercicioDetalle, onPerfilFisicoClick: () -> Uni
         if (recomendacion != null) {
             TarjetaRecomendacion(recomendacion)
         } else {
-            SinRecomendacion(e.recomendacionMotivo, e.descansoSeg, onPerfilFisicoClick)
+            SinRecomendacion(e.recomendacionMotivo, e.descansoSeg, mostrarIrAPerfil, onPerfilFisicoClick)
         }
 
         ComoSeHace(e)
@@ -194,8 +204,14 @@ private fun TarjetaRecomendacion(r: RecomendacionEjercicio) {
     }
 }
 
+/** Motivo de no tener recomendación; el botón solo si falta el perfil físico ([mostrarIrAPerfil]). */
 @Composable
-private fun SinRecomendacion(motivo: String?, descansoSeg: Int?, onPerfilFisicoClick: () -> Unit) {
+private fun SinRecomendacion(
+    motivo: String?,
+    descansoSeg: Int?,
+    mostrarIrAPerfil: Boolean,
+    onPerfilFisicoClick: () -> Unit
+) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = PuBgCard),
@@ -205,21 +221,23 @@ private fun SinRecomendacion(motivo: String?, descansoSeg: Int?, onPerfilFisicoC
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("Recomendado para ti", color = PuAccentMid, fontSize = 13.sp)
             Text(
-                motivo ?: "Completa tu perfil físico para ver la recomendación",
+                motivo ?: "Este ejercicio todavía no tiene recomendación",
                 color = PuTextPrimary,
                 fontSize = 15.sp
             )
             descansoSeg?.let {
                 Text("Descanso entre series: ${duracionDescanso(it)}", color = PuTextSecondary, fontSize = 14.sp)
             }
-            Button(
-                onClick = onPerfilFisicoClick,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = PuAccent, contentColor = PuAccentDark),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 48.dp)
-            ) { Text("Ir a mi perfil físico") }
+            if (mostrarIrAPerfil) {
+                Button(
+                    onClick = onPerfilFisicoClick,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = PuAccent, contentColor = PuAccentDark),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp)
+                ) { Text("Ir a mi perfil físico") }
+            }
         }
     }
 }

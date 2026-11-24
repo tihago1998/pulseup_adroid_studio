@@ -176,7 +176,9 @@ fun AppNavegacion() {
         ) { entrada ->
             val id = entrada.arguments?.getInt("id") ?: 0
             val viewModel: EjercicioDetalleViewModel = viewModel(
-                factory = fabricaDe { EjercicioDetalleViewModel(Dependencias.ejerciciosRepository, id) }
+                factory = fabricaDe {
+                    EjercicioDetalleViewModel(Dependencias.ejerciciosRepository, Dependencias.perfilFisicoRepository, id)
+                }
             )
             // Al volver de Perfil físico se pide otra vez la recomendación (si antes no había)
             DisposableEffect(entrada) {
