@@ -3,12 +3,10 @@ package com.example.pulseup.presentation.ejercicios
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pulseup.domain.Resultado
-import com.example.pulseup.domain.model.Catalogos
 import com.example.pulseup.domain.model.Ejercicio
 import com.example.pulseup.domain.model.FiltroCatalogo
 import com.example.pulseup.domain.model.FiltrosCatalogo
 import com.example.pulseup.domain.repository.EjerciciosRepository
-import com.example.pulseup.domain.repository.PerfilFisicoRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,8 +42,7 @@ data class CatalogoUiState(
 }
 
 class EjerciciosViewModel(
-    private val repositorio: EjerciciosRepository,
-    private val perfilFisico: PerfilFisicoRepository
+    private val repositorio: EjerciciosRepository
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow(CatalogoUiState())
@@ -56,12 +53,8 @@ class EjerciciosViewModel(
 
     init {
         cargarOpciones()
-        viewModelScope.launch {
-            // Nivel por defecto: el del perfil físico, si lo tiene. Si falla, se busca sin nivel.
-            val nivel = (perfilFisico.obtener() as? Resultado.Exito)?.datos?.nivel
-            if (nivel in Catalogos.NIVELES) _estado.update { it.copy(filtro = it.filtro.copy(nivel = nivel)) }
-            buscar(conEspera = false)
-        }
+        // Sin filtros al abrir: el nivel solo se filtra si el usuario toca su chip
+        buscar(conEspera = false)
     }
 
     fun cambiarTexto(texto: String) = cambiarFiltro(conEspera = true) { it.copy(texto = texto) }

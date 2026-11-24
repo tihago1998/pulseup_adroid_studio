@@ -18,8 +18,7 @@ class EjerciciosViewModelTest {
     @get:Rule
     val main = ReglaMainDispatcher()
 
-    private fun vm(repo: EjerciciosFalso, nivelPerfil: String? = null, perfilFalla: Boolean = false) =
-        EjerciciosViewModel(repo, PerfilFisicoFalso(nivelPerfil, perfilFalla))
+    private fun vm(repo: EjerciciosFalso) = EjerciciosViewModel(repo)
 
     // ---------- Primera carga y nivel por defecto ----------
 
@@ -39,24 +38,29 @@ class EjerciciosViewModelTest {
     }
 
     @Test
-    fun `el nivel por defecto es el del perfil fisico`() = runTest(main.dispatcher) {
+    fun `el nivel no viene marcado por defecto`() = runTest(main.dispatcher) {
         val repo = EjerciciosFalso()
-        val vm = vm(repo, nivelPerfil = "avanzado")
+        val vm = vm(repo)
         advanceUntilIdle()
 
-        assertEquals("avanzado", vm.estado.value.filtro.nivel)
-        assertEquals("avanzado", repo.busquedas.single().first.nivel)
+        assertNull(vm.estado.value.filtro.nivel)
+        assertNull(repo.busquedas.single().first.nivel)
+        assertFalse(vm.estado.value.conFiltros)
     }
 
     @Test
-    fun `sin perfil fisico o si falla no se filtra por nivel`() = runTest(main.dispatcher) {
-        val sinPerfil = vm(EjerciciosFalso(), nivelPerfil = null)
-        val conFallo = vm(EjerciciosFalso(), nivelPerfil = "avanzado", perfilFalla = true)
+    fun `el nivel solo se filtra si el usuario toca el chip`() = runTest(main.dispatcher) {
+        val repo = EjerciciosFalso()
+        val vm = vm(repo)
         advanceUntilIdle()
 
-        assertNull(sinPerfil.estado.value.filtro.nivel)
-        assertNull(conFallo.estado.value.filtro.nivel)
-        assertFalse(conFallo.estado.value.cargando)
+        vm.elegirNivel("avanzado")
+        advanceUntilIdle()
+        assertEquals("avanzado", repo.busquedas.last().first.nivel)
+
+        vm.elegirNivel(null)
+        advanceUntilIdle()
+        assertNull(repo.busquedas.last().first.nivel)
     }
 
     // ---------- Filtros ----------
@@ -101,7 +105,10 @@ class EjerciciosViewModelTest {
     @Test
     fun `quitar filtros deja la busqueda sin filtros`() = runTest(main.dispatcher) {
         val repo = EjerciciosFalso()
-        val vm = vm(repo, nivelPerfil = "intermedio")
+        val vm = vm(repo)
+        advanceUntilIdle()
+        vm.elegirNivel("intermedio")
+        vm.elegirAmbiente("casa")
         advanceUntilIdle()
         assertTrue(vm.estado.value.conFiltros)
 

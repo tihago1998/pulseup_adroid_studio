@@ -154,7 +154,7 @@ fun AppNavegacion() {
         composable("ejercicios") {
             val viewModel: EjerciciosViewModel = viewModel(
                 factory = fabricaDe {
-                    EjerciciosViewModel(Dependencias.ejerciciosRepository, Dependencias.perfilFisicoRepository)
+                    EjerciciosViewModel(Dependencias.ejerciciosRepository)
                 }
             )
             EjerciciosScreen(
