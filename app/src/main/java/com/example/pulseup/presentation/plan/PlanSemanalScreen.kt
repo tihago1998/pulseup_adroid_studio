@@ -72,25 +72,10 @@ fun PlanSemanalScreen(
                         fontSize = 13.sp
                     )
                 }
-                estado.aviso?.let { aviso ->
-                    item {
-                        Card(
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = PuBgCard),
-                            border = BorderStroke(1.dp, if (estado.avisoEsError) PuRojo else PuAccent),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(onClick = viewModel::cerrarAviso)
-                        ) {
-                            Text(
-                                aviso,
-                                color = PuTextPrimary,
-                                fontSize = 14.sp,
-                                modifier = Modifier.padding(14.dp)
-                            )
-                        }
-                    }
+                if (estado.guardando) {
+                    item { Text("Guardando...", color = PuTextMuted, fontSize = 14.sp) }
                 }
+                items(estado.notas) { nota -> TarjetaNota(nota, onCerrar = { viewModel.cerrarNota(nota) }) }
                 items(estado.dias, key = { it.diaSemana }) { dia ->
                     TarjetaDia(
                         dia = dia,
@@ -110,6 +95,16 @@ fun PlanSemanalScreen(
             onElegir = viewModel::elegirRutina,
             onDescanso = viewModel::dejarEnDescanso,
             onCerrar = viewModel::cerrarSelector
+        )
+    }
+
+    estado.porConfirmar?.let { p ->
+        DialogoAvisos(
+            titulo = if (p.nombreRutina.isBlank()) "¿Asignar al ${p.nombreDia}?" else "¿Asignar ${p.nombreRutina} al ${p.nombreDia}?",
+            avisos = p.avisos,
+            confirmar = "Asignar igual",
+            onConfirmar = viewModel::confirmarAsignacion,
+            onCancelar = viewModel::cancelarAsignacion
         )
     }
 }
