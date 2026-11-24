@@ -29,6 +29,16 @@ class CatalogoMapperTest {
     }
 
     @Test
+    fun `la URL base mal escrita se normaliza igual que en Retrofit`() {
+        // Valor real de local.properties que dejó las fotos sin cargar: tres barras y un espacio al final
+        assertEquals(
+            "http://10.204.171.84:5050/static/ejercicios/Air_Bike/0.jpg",
+            urlAbsoluta("http:///10.204.171.84:5050 ", "/static/ejercicios/Air_Bike/0.jpg")
+        )
+        assertNull(urlAbsoluta("no es una url", "/static/x.jpg"))
+    }
+
+    @Test
     fun `una URL absoluta se deja igual y una vacia da null`() {
         assertEquals("https://cdn.x/y.jpg", urlAbsoluta(base, "https://cdn.x/y.jpg"))
         assertNull(urlAbsoluta(base, null))

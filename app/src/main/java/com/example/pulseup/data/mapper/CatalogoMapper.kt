@@ -10,18 +10,21 @@ import com.example.pulseup.domain.model.EjercicioDetalle
 import com.example.pulseup.domain.model.ImagenEjercicio
 import com.example.pulseup.domain.model.PaginaEjercicios
 import com.example.pulseup.domain.model.RecomendacionEjercicio
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 /** Texto que el backend pone en "aviso"; se usa si por algún motivo no llega. */
 const val AVISO_RECOMENDACION = "Es una guía general y no reemplaza a un entrenador ni a un médico."
 
 /**
  * Las fotos llegan como rutas relativas (/static/ejercicios/...): se les antepone la URL del backend.
- * Una URL que ya es absoluta se deja igual; vacía o null da null.
+ * La URL base se interpreta con OkHttp, igual que la interpreta Retrofit para la API: así una base
+ * mal escrita en local.properties (espacios, barras de más) sirve para las fotos si sirve para la API.
+ * Una URL que ya es absoluta se deja igual; ruta vacía o null, o base inválida, da null.
  */
 fun urlAbsoluta(baseUrl: String, ruta: String?): String? {
     if (ruta.isNullOrBlank()) return null
-    if (ruta.startsWith("http://") || ruta.startsWith("https://")) return ruta
-    return baseUrl.trimEnd('/') + "/" + ruta.trimStart('/')
+    val base = baseUrl.trim().toHttpUrlOrNull() ?: return null
+    return base.resolve(ruta.trim())?.toString()
 }
 
 /** Lista paginada: se lee "items" y, si no viene, "ejercicios" (mismo contenido). */
