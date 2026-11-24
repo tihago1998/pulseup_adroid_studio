@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.pulseup.data.Session
 import com.example.pulseup.di.Dependencias
+import com.example.pulseup.domain.model.nombreDiaSemana
 import com.example.pulseup.presentation.ejercicios.CreditosScreen
 import com.example.pulseup.presentation.ejercicios.CreditosViewModel
 import com.example.pulseup.presentation.ejercicios.EjercicioDetalleScreen
@@ -28,6 +29,8 @@ import com.example.pulseup.presentation.perfil.PerfilFisicoScreen
 import com.example.pulseup.presentation.perfil.PerfilFisicoViewModel
 import com.example.pulseup.presentation.plan.CalendarioScreen
 import com.example.pulseup.presentation.plan.CalendarioViewModel
+import com.example.pulseup.presentation.plan.PlanDiaScreen
+import com.example.pulseup.presentation.plan.PlanDiaViewModel
 import com.example.pulseup.presentation.plan.PlanSemanalScreen
 import com.example.pulseup.presentation.plan.PlanSemanalViewModel
 import com.example.pulseup.presentation.rutinas.CrearRutinaScreen
@@ -36,6 +39,9 @@ import com.example.pulseup.presentation.rutinas.RutinaDetalleScreen
 import com.example.pulseup.presentation.rutinas.RutinaDetalleViewModel
 import com.example.pulseup.presentation.rutinas.RutinasScreen
 import com.example.pulseup.presentation.rutinas.RutinasViewModel
+
+/** Clave con la que el catálogo devuelve el ejercicio elegido al detalle de un día del plan. */
+private const val EJERCICIO_ELEGIDO = "ejercicioElegido"
 
 @Composable
 fun AppNavegacion() {
@@ -121,13 +127,68 @@ fun AppNavegacion() {
             )
         }
         // ---------- Plan semanal y calendario ----------
-        composable("plan") {
+        composable("plan") { entrada ->
             val viewModel: PlanSemanalViewModel = viewModel(
                 factory = fabricaDe {
                     PlanSemanalViewModel(Dependencias.planRepository, Dependencias.rutinasRepository)
                 }
             )
-            PlanSemanalScreen(viewModel = viewModel, onVolver = { navController.popBackStack() })
+            // Al volver del detalle de un día se recargan sus ejercicios
+            DisposableEffect(entrada) {
+                val observador = LifecycleEventObserver { _, evento ->
+                    if (evento == Lifecycle.Event.ON_RESUME) viewModel.refrescar()
+                }
+                entrada.lifecycle.addObserver(observador)
+                onDispose { entrada.lifecycle.removeObserver(observador) }
+            }
+            PlanSemanalScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onDiaClick = { dia -> navController.navigate("planDia/$dia") }
+            )
+        }
+        composable(
+            route = "planDia/{dia}",
+            arguments = listOf(navArgument("dia") { type = NavType.IntType })
+        ) { entrada ->
+            val dia = entrada.arguments?.getInt("dia") ?: 1
+            val viewModel: PlanDiaViewModel = viewModel(
+                factory = fabricaDe {
+                    PlanDiaViewModel(Dependencias.planRepository, Dependencias.ejerciciosRepository, dia)
+                }
+            )
+            // El catálogo deja aquí el ejercicio elegido para agregarlo a este día
+            val elegido by entrada.savedStateHandle.getStateFlow<Int?>(EJERCICIO_ELEGIDO, null).collectAsState()
+            LaunchedEffect(elegido) {
+                elegido?.let {
+                    entrada.savedStateHandle[EJERCICIO_ELEGIDO] = null
+                    viewModel.agregar(it)
+                }
+            }
+            PlanDiaScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onAgregarEjercicio = { navController.navigate("elegirEjercicio/$dia") }
+            )
+        }
+        composable(
+            route = "elegirEjercicio/{dia}",
+            arguments = listOf(navArgument("dia") { type = NavType.IntType })
+        ) { entrada ->
+            val dia = entrada.arguments?.getInt("dia") ?: 1
+            val viewModel: EjerciciosViewModel = viewModel(
+                factory = fabricaDe { EjerciciosViewModel(Dependencias.ejerciciosRepository) }
+            )
+            EjerciciosScreen(
+                viewModel = viewModel,
+                titulo = "Agregar al ${nombreDiaSemana(dia)}",
+                onVolver = { navController.popBackStack() },
+                onEjercicioClick = { id ->
+                    navController.previousBackStackEntry?.savedStateHandle?.set(EJERCICIO_ELEGIDO, id)
+                    navController.popBackStack()
+                },
+                onCreditosClick = { navController.navigate("creditosEjercicios") }
+            )
         }
         composable("calendario") {
             val viewModel: CalendarioViewModel = viewModel(
@@ -197,7 +258,7 @@ fun AppNavegacion() {
                 viewModel = viewModel,
                 onVolver = { navController.popBackStack() },
                 onPerfilFisicoClick = { navController.navigate("perfilFisico") },
-                onVerDia = { navController.navigate("plan") }
+                onVerDia = { dia -> navController.navigate("planDia/$dia") }
             )
         }
         composable("rutinas") { entrada ->

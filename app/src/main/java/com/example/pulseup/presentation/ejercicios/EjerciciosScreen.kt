@@ -56,13 +56,18 @@ import com.example.pulseup.ui.theme.PuTextMuted
 import com.example.pulseup.ui.theme.PuTextPrimary
 import kotlinx.coroutines.flow.filter
 
-/** Catálogo de ejercicios: búsqueda, filtros, fotos y paginación al llegar al final. */
+/**
+ * Catálogo de ejercicios: búsqueda, filtros, fotos y paginación al llegar al final.
+ * También sirve para elegir un ejercicio para un día del plan: entonces cambia [titulo] y
+ * [onEjercicioClick] devuelve el elegido en vez de abrir su detalle.
+ */
 @Composable
 fun EjerciciosScreen(
     viewModel: EjerciciosViewModel,
     onVolver: () -> Unit,
     onEjercicioClick: (Int) -> Unit,
-    onCreditosClick: () -> Unit
+    onCreditosClick: () -> Unit,
+    titulo: String = "Ejercicios"
 ) {
     val estado by viewModel.estado.collectAsState()
     val opciones = estado.opciones
@@ -80,7 +85,7 @@ fun EjerciciosScreen(
         snapshotFlow { cercaDelFinal }.filter { it }.collect { viewModel.cargarMas() }
     }
 
-    PantallaPu(titulo = "Ejercicios", onVolver = onVolver) {
+    PantallaPu(titulo = titulo, onVolver = onVolver) {
         LazyColumn(
             state = lista,
             modifier = Modifier.weight(1f),

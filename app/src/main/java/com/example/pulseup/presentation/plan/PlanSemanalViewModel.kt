@@ -59,6 +59,12 @@ class PlanSemanalViewModel(
         }
     }
 
+    /** Al volver al plan (por ejemplo, del detalle de un día) se recarga sin pantalla de carga. */
+    fun refrescar() {
+        if (_estado.value.cargando || _estado.value.guardando) return
+        viewModelScope.launch { recargarPlan() }
+    }
+
     fun abrirSelector(dia: Int) = _estado.update { it.copy(diaEditando = dia, aviso = null) }
 
     fun cerrarSelector() = _estado.update { it.copy(diaEditando = null) }
