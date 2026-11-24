@@ -55,7 +55,8 @@ fun RutinaDto.aDominio() = Rutina(
     duracionMin = duracionMin ?: 0,
     totalEjercicios = totalEjercicios ?: ejercicios?.size ?: 0,
     esPlantilla = esPlantilla ?: false,
-    ejercicios = ejercicios.orEmpty().mapNotNull { it.aDominio() }
+    ejercicios = ejercicios.orEmpty().mapNotNull { it.aDominio() },
+    origen = origen
 )
 
 fun NuevaRutina.aRequest() = NuevaRutinaRequest(

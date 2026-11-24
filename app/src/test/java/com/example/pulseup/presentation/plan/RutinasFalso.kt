@@ -5,8 +5,8 @@ import com.example.pulseup.domain.model.NuevaRutina
 import com.example.pulseup.domain.model.Rutina
 import com.example.pulseup.domain.repository.RutinasRepository
 
-fun rutina(id: Int, nombre: String = "Rutina $id") =
-    Rutina(id, nombre, "", "general", "intermedio", 45, 3, false, emptyList())
+fun rutina(id: Int, nombre: String = "Rutina $id", origen: String? = null) =
+    Rutina(id, nombre, "", "general", "intermedio", 45, 3, false, emptyList(), origen)
 
 /** Rutinas falsas: listar devuelve [lista]; crear guarda la nueva y responde [idNueva] (o falla). */
 class RutinasFalso(

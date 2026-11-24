@@ -7,6 +7,7 @@ import com.example.pulseup.domain.model.AvisoDescanso
 import com.example.pulseup.domain.model.DiaPlan
 import com.example.pulseup.domain.model.Rutina
 import com.example.pulseup.domain.model.nombreDiaSemana
+import com.example.pulseup.domain.model.sinLasDelPlan
 import com.example.pulseup.domain.repository.PlanRepository
 import com.example.pulseup.domain.repository.RutinasRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,7 +64,8 @@ class PlanSemanalViewModel(
                     it.copy(
                         cargando = false,
                         dias = (resultadoPlan as Resultado.Exito).datos,
-                        rutinas = (resultadoRutinas as Resultado.Exito).datos
+                        // El selector no ofrece las rutinas que el plan creó para un día
+                        rutinas = (resultadoRutinas as Resultado.Exito).datos.sinLasDelPlan()
                     )
                 }
             }

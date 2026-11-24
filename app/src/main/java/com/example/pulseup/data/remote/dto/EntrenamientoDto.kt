@@ -113,7 +113,9 @@ data class RutinaDto(
     @SerializedName("duracion_min") val duracionMin: Int?,
     @SerializedName("total_ejercicios") val totalEjercicios: Int?,
     @SerializedName("es_plantilla") val esPlantilla: Boolean?,
-    val ejercicios: List<EjercicioDeRutinaDto>?
+    val ejercicios: List<EjercicioDeRutinaDto>?,
+    /** "plan" si la creó el plan semanal al agregar ejercicios a un día; null en las demás. */
+    val origen: String? = null
 )
 
 data class RutinasListaResponse(val rutinas: List<RutinaDto>?)
