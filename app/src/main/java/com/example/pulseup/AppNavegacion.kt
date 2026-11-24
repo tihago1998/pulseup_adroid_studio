@@ -177,7 +177,12 @@ fun AppNavegacion() {
             val id = entrada.arguments?.getInt("id") ?: 0
             val viewModel: EjercicioDetalleViewModel = viewModel(
                 factory = fabricaDe {
-                    EjercicioDetalleViewModel(Dependencias.ejerciciosRepository, Dependencias.perfilFisicoRepository, id)
+                    EjercicioDetalleViewModel(
+                        Dependencias.ejerciciosRepository,
+                        Dependencias.perfilFisicoRepository,
+                        Dependencias.planRepository,
+                        id
+                    )
                 }
             )
             // Al volver de Perfil físico se pide otra vez la recomendación (si antes no había)
@@ -191,7 +196,8 @@ fun AppNavegacion() {
             EjercicioDetalleScreen(
                 viewModel = viewModel,
                 onVolver = { navController.popBackStack() },
-                onPerfilFisicoClick = { navController.navigate("perfilFisico") }
+                onPerfilFisicoClick = { navController.navigate("perfilFisico") },
+                onVerDia = { navController.navigate("plan") }
             )
         }
         composable("rutinas") { entrada ->

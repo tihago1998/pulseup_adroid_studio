@@ -16,6 +16,11 @@ data class DiaPlan(
     val ejercicios: List<EjercicioPlan> = emptyList()
 )
 
+private val NOMBRES_DIAS = listOf("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
+
+/** 1 -> "lunes" … 7 -> "domingo" (igual que nombre_dia del backend); fuera de rango, "día N". */
+fun nombreDiaSemana(dia: Int): String = NOMBRES_DIAS.getOrNull(dia - 1) ?: "día $dia"
+
 /** Máximo de ejercicios por día que acepta el backend. */
 const val MAX_EJERCICIOS_POR_DIA = 20
 
