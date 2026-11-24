@@ -301,7 +301,11 @@ fun AppNavegacion() {
         composable("rutinaNueva") {
             val viewModel: CrearRutinaViewModel = viewModel(
                 factory = fabricaDe {
-                    CrearRutinaViewModel(Dependencias.rutinasRepository, Dependencias.ejerciciosRepository)
+                    CrearRutinaViewModel(
+                        Dependencias.rutinasRepository,
+                        Dependencias.ejerciciosRepository,
+                        Dependencias.planRepository
+                    )
                 }
             )
             CrearRutinaScreen(
