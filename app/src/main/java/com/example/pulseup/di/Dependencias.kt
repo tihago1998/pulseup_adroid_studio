@@ -14,7 +14,7 @@ import com.example.pulseup.domain.repository.RutinasRepository
 /** Único lugar donde se arma cada pieza. Las pantallas piden aquí sus repositorios. */
 object Dependencias {
     val ejerciciosRepository: EjerciciosRepository by lazy {
-        EjerciciosRepositoryImpl(RetrofitClient.entrenamientoApi) { Session.bearer() }
+        EjerciciosRepositoryImpl(RetrofitClient.entrenamientoApi, RetrofitClient.baseUrl) { Session.bearer() }
     }
     val rutinasRepository: RutinasRepository by lazy {
         RutinasRepositoryImpl(RetrofitClient.entrenamientoApi) { Session.bearer() }

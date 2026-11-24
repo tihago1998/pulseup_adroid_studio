@@ -6,7 +6,8 @@ Aplicación móvil nativa para Android que ayuda a las personas a planificar sus
 
 - Inicio de sesión y registro de usuarios.
 - Roles: Usuario, Administrador y SuperAdministrador.
-- Catálogo de ejercicios y rutinas (plantillas y propias).
+- Catálogo de ejercicios con fotos, filtros y recomendación personalizada según el perfil físico.
+- Rutinas (plantillas y propias).
 - Plan semanal, calendario con racha y Home con la semana, "Hoy toca" y el progreso de la semana.
 - Perfil físico (edad, peso, estatura y nivel).
 - Edición de perfil y cambio de contraseña.
@@ -17,6 +18,7 @@ Aplicación móvil nativa para Android que ayuda a las personas a planificar sus
 - Kotlin y Jetpack Compose (Material 3)
 - Navigation Compose
 - Retrofit, Gson y OkHttp (cliente HTTP)
+- Coil (carga de imágenes)
 - Coroutines y DataStore
 - Gradle (Kotlin DSL)
 

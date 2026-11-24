@@ -8,23 +8,28 @@ import com.example.pulseup.data.remote.dto.NuevaRutinaRequest
 import com.example.pulseup.data.remote.dto.RutinaDto
 import com.example.pulseup.domain.model.Ejercicio
 import com.example.pulseup.domain.model.EjercicioDeRutina
-import com.example.pulseup.domain.model.FiltrosEjercicio
+import com.example.pulseup.domain.model.FiltrosCatalogo
 import com.example.pulseup.domain.model.NuevaRutina
 import com.example.pulseup.domain.model.Rutina
 
 // Convierte lo que llega del backend (DTO) en los modelos que usa el resto de la app.
 
-fun EjercicioDto.aDominio() = Ejercicio(
+/** [baseUrl] completa la URL relativa de la miniatura (/static/ejercicios/...). */
+fun EjercicioDto.aDominio(baseUrl: String = "") = Ejercicio(
     id = id,
     nombre = nombre.orEmpty(),
     grupoMuscular = grupoMuscular.orEmpty(),
     musculosSecundarios = musculosSecundarios.orEmpty(),
     equipo = equipo.orEmpty(),
     nivel = nivel.orEmpty(),
-    instrucciones = instrucciones.orEmpty()
+    instrucciones = instrucciones.orEmpty(),
+    musculoPrincipal = musculoPrincipal?.takeIf { it.isNotBlank() } ?: grupoMuscular.orEmpty(),
+    ambientes = ambientes.orEmpty(),
+    imagenMiniatura = urlAbsoluta(baseUrl, imagenMiniatura)
 )
 
-fun FiltrosResponse.aDominio() = FiltrosEjercicio(
+fun FiltrosResponse.aDominio() = FiltrosCatalogo(
+    ambientes = ambientes.orEmpty(),
     musculos = musculos.orEmpty(),
     equipos = equipos.orEmpty(),
     niveles = niveles.orEmpty()
