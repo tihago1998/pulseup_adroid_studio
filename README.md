@@ -8,7 +8,8 @@ Aplicación móvil nativa para Android que ayuda a las personas a planificar sus
 - Roles: Usuario, Administrador y SuperAdministrador.
 - Catálogo de ejercicios con fotos, filtros y recomendación personalizada según el perfil físico.
 - Rutinas (plantillas y propias).
-- Plan semanal, calendario con racha y Home con la semana, "Hoy toca" y el progreso de la semana.
+- Plan semanal con los ejercicios de cada día (agregar, editar y quitar) y avisos de la regla de 48 h que no bloquean.
+- Calendario con racha y Home con la semana, "Hoy toca" y el progreso de la semana.
 - Perfil físico (edad, peso, estatura y nivel).
 - Edición de perfil y cambio de contraseña.
 - Administración de usuarios para los roles con permisos.
