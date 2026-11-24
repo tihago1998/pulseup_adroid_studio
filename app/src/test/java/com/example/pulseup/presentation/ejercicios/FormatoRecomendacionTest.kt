@@ -78,6 +78,41 @@ class FormatoRecomendacionTest {
         assertNull(textosRecomendacion(rec(pesoKg = null)).peso)
     }
 
+    // ---------- Ejercicios del plan ----------
+
+    @Test
+    fun `plan con repeticiones y peso`() {
+        assertEquals("3 × 10 · 40 kg", textoSeriesPlan(3, "10", "repeticiones", 40.0))
+        assertEquals("4 × 9 · 72,5 kg", textoSeriesPlan(4, "9", "repeticiones", 72.5))
+    }
+
+    @Test
+    fun `plan con rango de repeticiones y sin peso`() {
+        assertEquals("3 × 8–10", textoSeriesPlan(3, "8-10", "repeticiones", null))
+    }
+
+    @Test
+    fun `plan en segundos`() {
+        assertEquals("3 × 40 s", textoSeriesPlan(3, "40", "segundos", null))
+    }
+
+    @Test
+    fun `plan en minutos sin series ni peso`() {
+        assertEquals("35 min", textoSeriesPlan(1, "35", "minutos", null))
+    }
+
+    @Test
+    fun `plan con unidad desconocida como repeticiones`() {
+        assertEquals("3 × 12", textoSeriesPlan(3, "12", "otra", null))
+    }
+
+    @Test
+    fun `descanso del plan oculto en cardio`() {
+        assertNull(textoDescansoPlan(0))
+        assertEquals("Descanso 1 min 15 s", textoDescansoPlan(75))
+        assertEquals("Descanso 45 s", textoDescansoPlan(45))
+    }
+
     @Test
     fun `titulo nota y aviso`() {
         val t = textosRecomendacion(rec(nota = "Sube poco a poco."))

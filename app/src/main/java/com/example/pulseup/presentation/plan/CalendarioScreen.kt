@@ -42,6 +42,7 @@ import com.example.pulseup.presentation.componentes.EstadoError
 import com.example.pulseup.presentation.componentes.PantallaPu
 import com.example.pulseup.presentation.componentes.textoBonito
 import com.example.pulseup.ui.theme.PuBorder
+import com.example.pulseup.ui.theme.PuRojo
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale

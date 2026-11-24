@@ -25,7 +25,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,6 +46,13 @@ import com.example.pulseup.presentation.componentes.EtiquetaPu
 import com.example.pulseup.presentation.componentes.ImagenRemota
 import com.example.pulseup.presentation.componentes.PantallaPu
 import com.example.pulseup.presentation.componentes.textoBonito
+import com.example.pulseup.presentation.plan.DialogoAvisos
+import com.example.pulseup.presentation.plan.HojaDias
+import com.example.pulseup.presentation.plan.Nota
+import com.example.pulseup.presentation.plan.TarjetaNota
+import com.example.pulseup.presentation.plan.TipoNota
+import com.example.pulseup.presentation.plan.notasDeAvisos
+import com.example.pulseup.presentation.plan.textoRutinaCopiada
 import com.example.pulseup.ui.theme.PuAccent
 import com.example.pulseup.ui.theme.PuAccentDark
 import com.example.pulseup.ui.theme.PuAccentMid
@@ -57,7 +66,8 @@ import com.example.pulseup.ui.theme.PuTextSecondary
 fun EjercicioDetalleScreen(
     viewModel: EjercicioDetalleViewModel,
     onVolver: () -> Unit,
-    onPerfilFisicoClick: () -> Unit
+    onPerfilFisicoClick: () -> Unit,
+    onVerDia: (Int) -> Unit
 ) {
     val estado by viewModel.estado.collectAsState()
     val ejercicio = estado.ejercicio
@@ -69,8 +79,41 @@ fun EjercicioDetalleScreen(
             ejercicio != null -> ContenidoDetalle(
                 e = ejercicio,
                 mostrarIrAPerfil = estado.mostrarIrAPerfil,
+                agregado = estado.agregado,
                 onPerfilFisicoClick = onPerfilFisicoClick,
+                onAgregarAlPlan = viewModel::abrirHojaPlan,
+                onVerDia = onVerDia,
+                onCerrarAgregado = viewModel::cerrarAgregado,
                 modifier = Modifier.weight(1f)
+            )
+        }
+    }
+
+    estado.hojaPlan?.let { hoja ->
+        HojaDias(
+            titulo = "¿Qué día?",
+            subtitulo = "Se agrega con la recomendación para ti; luego puedes cambiar series y peso.",
+            cargando = hoja.cargando,
+            error = hoja.error,
+            dias = hoja.dias,
+            multiple = false,
+            seleccionados = emptySet(),
+            textoConRutina = "Tiene rutina: se agrega a ella",
+            onDia = viewModel::elegirDia,
+            onReintentar = viewModel::reintentarHojaPlan,
+            onCerrar = viewModel::cerrarHojaPlan,
+            mensaje = hoja.errorAgregar,
+            deshabilitada = hoja.guardando
+        ) {
+            if (hoja.guardando) Text("Agregando...", color = PuTextMuted, fontSize = 14.sp)
+        }
+        hoja.porConfirmar?.let { dia ->
+            DialogoAvisos(
+                titulo = "¿Agregar al ${dia.nombreDia}?",
+                avisos = dia.avisos,
+                confirmar = "Agregar igual",
+                onConfirmar = viewModel::confirmarDia,
+                onCancelar = viewModel::cancelarConfirmacion
             )
         }
     }
@@ -81,7 +124,11 @@ fun EjercicioDetalleScreen(
 private fun ContenidoDetalle(
     e: EjercicioDetalle,
     mostrarIrAPerfil: Boolean,
+    agregado: AgregadoAlPlan?,
     onPerfilFisicoClick: () -> Unit,
+    onAgregarAlPlan: () -> Unit,
+    onVerDia: (Int) -> Unit,
+    onCerrarAgregado: () -> Unit,
     modifier: Modifier
 ) {
     Column(
@@ -111,20 +158,40 @@ private fun ContenidoDetalle(
 
         ComoSeHace(e)
 
-        // Fase 2: no existe todavía un flujo para agregar un ejercicio a una rutina desde aquí
+        if (agregado != null) {
+            ConfirmacionAgregado(agregado, onVerDia = { onVerDia(agregado.dia) }, onCerrar = onCerrarAgregado)
+        }
         Button(
-            onClick = {},
-            enabled = false,
+            onClick = onAgregarAlPlan,
             shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = PuAccent, contentColor = PuAccentDark),
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 48.dp)
-        ) { Text("Agregar a una rutina") }
-        Text(
-            "Muy pronto podrás agregar este ejercicio a tus rutinas desde aquí.",
-            color = PuTextMuted,
-            fontSize = 12.sp
-        )
+        ) { Text("Agregar a mi plan") }
+    }
+}
+
+/** "Agregado al lunes" con los avisos de 48 h, la copia de la rutina (si hubo) y "Ver día". */
+@Composable
+private fun ConfirmacionAgregado(agregado: AgregadoAlPlan, onVerDia: () -> Unit, onCerrar: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        TarjetaNota(Nota("Agregado a tu plan del ${agregado.nombreDia}.", TipoNota.EXITO))
+        notasDeAvisos(agregado.avisos).forEach { TarjetaNota(it) }
+        if (agregado.rutinaCopiada) TarjetaNota(Nota(textoRutinaCopiada(agregado.nombreDia), TipoNota.INFO))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(
+                onClick = onVerDia,
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, PuAccent),
+                modifier = Modifier
+                    .weight(1f)
+                    .heightIn(min = 48.dp)
+            ) { Text("Ver día", color = PuAccent) }
+            TextButton(onClick = onCerrar, modifier = Modifier.heightIn(min = 48.dp)) {
+                Text("Cerrar", color = PuTextMuted)
+            }
+        }
     }
 }
 

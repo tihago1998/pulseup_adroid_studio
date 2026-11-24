@@ -26,7 +26,7 @@ import com.example.pulseup.ui.theme.PuTextPrimary
 import com.example.pulseup.domain.model.EstadoDia
 import com.example.pulseup.presentation.plan.BotonMarcarHoy
 import com.example.pulseup.presentation.plan.CalendarioViewModel
-import com.example.pulseup.presentation.plan.PuRojo
+import com.example.pulseup.ui.theme.PuRojo
 import com.example.pulseup.ui.theme.PuBorder
 
 /** Tarjeta del Home: qué toca hoy según el plan semanal, la racha y el botón para marcarlo. */

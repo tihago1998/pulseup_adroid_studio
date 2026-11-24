@@ -21,7 +21,7 @@ internal suspend fun <D, T> ejecutar(
         if (cuerpo == null) Resultado.Fallo("El servidor respondió vacío")
         else Resultado.Exito(convertir(cuerpo))
     } else {
-        Resultado.Fallo(mensajeDeError(respuesta))
+        Resultado.Fallo(mensajeDeError(respuesta), respuesta.code())
     }
 } catch (e: CancellationException) {
     throw e // no se debe tragar la cancelación de una corrutina

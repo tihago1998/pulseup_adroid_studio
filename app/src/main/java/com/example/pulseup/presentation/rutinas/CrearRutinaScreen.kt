@@ -52,6 +52,10 @@ import com.example.pulseup.presentation.componentes.ChipPu
 import com.example.pulseup.presentation.componentes.PantallaPu
 import com.example.pulseup.presentation.componentes.coloresCampoPu
 import com.example.pulseup.presentation.componentes.textoBonito
+import com.example.pulseup.presentation.plan.DialogoReemplazo
+import com.example.pulseup.presentation.plan.HojaDias
+import com.example.pulseup.presentation.plan.TarjetaNota
+import com.example.pulseup.presentation.plan.textoReemplazo
 import com.example.pulseup.ui.theme.PuBorder
 
 @Composable
@@ -139,6 +143,17 @@ fun CrearRutinaScreen(
         }
     }
 
+    estado.ofrecerPlan?.let { oferta ->
+        HojaPonerEnPlan(oferta, viewModel)
+        oferta.porReemplazar?.let { dias ->
+            DialogoReemplazo(
+                texto = textoReemplazo(dias),
+                onReemplazar = viewModel::confirmarReemplazo,
+                onCancelar = viewModel::cancelarReemplazo
+            )
+        }
+    }
+
     if (eligiendo) {
         SelectorEjercicio(
             catalogo = estado.catalogo,
@@ -148,6 +163,55 @@ fun CrearRutinaScreen(
             },
             onCerrar = { eligiendo = false }
         )
+    }
+}
+
+/** Tras guardar: elegir días del plan para la rutina nueva (varios), con los avisos de 48 h. */
+@Composable
+private fun HojaPonerEnPlan(oferta: OfrecerPlanUiState, viewModel: CrearRutinaViewModel) {
+    val resumen = oferta.resumen
+    HojaDias(
+        titulo = if (resumen == null) "¿Quieres ponerla en tu plan?" else "Rutina guardada",
+        subtitulo = if (resumen == null) "Elige uno o varios días. Si un día ya tiene rutina, se reemplaza." else null,
+        cargando = oferta.cargando && resumen == null,
+        error = if (resumen == null) oferta.error else null,
+        dias = if (resumen == null) oferta.dias else emptyList(),
+        multiple = true,
+        seleccionados = oferta.seleccionados,
+        textoConRutina = "Ya tiene rutina: se reemplaza",
+        onDia = viewModel::alternarDia,
+        onReintentar = viewModel::reintentarDiasPlan,
+        onCerrar = viewModel::terminar,
+        deshabilitada = oferta.guardando
+    ) {
+        if (resumen != null) {
+            resumen.forEach { TarjetaNota(it) }
+            Button(
+                onClick = viewModel::terminar,
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = PuAccent, contentColor = PuAccentDark),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp)
+            ) { Text("Listo") }
+        } else {
+            Button(
+                onClick = viewModel::agregarAlPlan,
+                enabled = oferta.seleccionados.isNotEmpty() && !oferta.guardando && !oferta.cargando,
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = PuAccent, contentColor = PuAccentDark),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp)
+            ) { Text(if (oferta.guardando) "Agregando..." else "Agregar al plan") }
+            TextButton(
+                onClick = viewModel::terminar,
+                enabled = !oferta.guardando,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp)
+            ) { Text("Ahora no", color = PuTextMuted) }
+        }
     }
 }
 

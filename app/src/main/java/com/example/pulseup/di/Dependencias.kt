@@ -20,7 +20,7 @@ object Dependencias {
         RutinasRepositoryImpl(RetrofitClient.entrenamientoApi) { Session.bearer() }
     }
     val planRepository: PlanRepository by lazy {
-        PlanRepositoryImpl(RetrofitClient.planApi) { Session.bearer() }
+        PlanRepositoryImpl(RetrofitClient.planApi, RetrofitClient.baseUrl) { Session.bearer() }
     }
     val perfilFisicoRepository: PerfilFisicoRepository by lazy {
         PerfilFisicoRepositoryImpl(RetrofitClient.perfilFisicoApi) { Session.bearer() }

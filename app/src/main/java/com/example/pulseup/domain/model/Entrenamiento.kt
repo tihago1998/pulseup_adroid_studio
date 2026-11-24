@@ -52,8 +52,21 @@ data class Rutina(
     val duracionMin: Int,
     val totalEjercicios: Int,
     val esPlantilla: Boolean,
-    val ejercicios: List<EjercicioDeRutina>
-)
+    val ejercicios: List<EjercicioDeRutina>,
+    /** "plan" = la creó el plan semanal para un día; null = plantilla o rutina hecha por el usuario. */
+    val origen: String? = null
+) {
+    val esDelPlan: Boolean get() = origen == ORIGEN_PLAN
+}
+
+/** Valor de `origen` de las rutinas que crea el plan semanal al agregar ejercicios a un día. */
+const val ORIGEN_PLAN = "plan"
+
+/**
+ * Rutinas que el usuario puede ver y elegir: sin las que creó el plan para un día
+ * (esas solo se ven dentro del plan de ese día).
+ */
+fun List<Rutina>.sinLasDelPlan(): List<Rutina> = filterNot { it.esDelPlan }
 
 data class ItemNuevaRutina(
     val idEjercicio: Int,

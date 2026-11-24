@@ -1,6 +1,10 @@
 package com.example.pulseup.presentation.ejercicios
 
+import com.example.pulseup.domain.Resultado
+import com.example.pulseup.domain.model.DiaPrevisualizado
 import com.example.pulseup.domain.model.RecomendacionEjercicio
+import com.example.pulseup.presentation.plan.PlanFalso
+import com.example.pulseup.presentation.plan.aviso
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -23,8 +27,11 @@ class EjercicioDetalleViewModelTest {
         "Es una guía general y no reemplaza a un entrenador ni a un médico."
     )
 
-    private fun vm(repo: EjerciciosFalso, perfil: PerfilFisicoFalso = PerfilFisicoFalso(nivel = "intermedio")) =
-        EjercicioDetalleViewModel(repo, perfil, 1)
+    private fun vm(
+        repo: EjerciciosFalso,
+        perfil: PerfilFisicoFalso = PerfilFisicoFalso(nivel = "intermedio"),
+        plan: PlanFalso = PlanFalso()
+    ) = EjercicioDetalleViewModel(repo, perfil, plan, 1)
 
     @Test
     fun `carga el detalle`() = runTest(main.dispatcher) {
@@ -131,5 +138,144 @@ class EjercicioDetalleViewModelTest {
         assertNull(vm.estado.value.error)
         assertEquals("Press de banca", vm.estado.value.ejercicio?.nombre)
         assertTrue(vm.estado.value.mostrarIrAPerfil)
+    }
+
+    // ---------- Agregar a mi plan ----------
+
+    private fun planConAvisoElMartes() = PlanFalso().apply {
+        previsualizacion = previsualizacion.map {
+            if (it.dia == 2) DiaPrevisualizado(2, "martes", true, listOf(aviso(diaConflicto = 1))) else it
+        }
+    }
+
+    @Test
+    fun `abrir la hoja pide los dias con previsualizar del ejercicio`() = runTest(main.dispatcher) {
+        val plan = PlanFalso()
+        val vm = vm(EjerciciosFalso(), plan = plan)
+        advanceUntilIdle()
+
+        vm.abrirHojaPlan()
+        advanceUntilIdle()
+
+        val hoja = vm.estado.value.hojaPlan!!
+        assertFalse(hoja.cargando)
+        assertEquals(7, hoja.dias.size)
+        assertEquals(listOf("ejercicio 1"), plan.previsualizadas)
+    }
+
+    @Test
+    fun `dia sin avisos se agrega directo y muestra la confirmacion`() = runTest(main.dispatcher) {
+        val plan = PlanFalso()
+        val vm = vm(EjerciciosFalso(), plan = plan)
+        advanceUntilIdle()
+        vm.abrirHojaPlan()
+        advanceUntilIdle()
+
+        vm.elegirDia(vm.estado.value.hojaPlan!!.dias[3]) // jueves
+        advanceUntilIdle()
+
+        assertEquals(listOf(4 to 1), plan.agregados)
+        assertNull(vm.estado.value.hojaPlan)
+        val agregado = vm.estado.value.agregado!!
+        assertEquals(4, agregado.dia)
+        assertEquals("jueves", agregado.nombreDia)
+        assertFalse(agregado.rutinaCopiada)
+    }
+
+    @Test
+    fun `dia con aviso pide confirmar y Agregar igual lo agrega`() = runTest(main.dispatcher) {
+        val plan = planConAvisoElMartes().apply { avisosAlAgregar = listOf(aviso(diaConflicto = 1)) }
+        val vm = vm(EjerciciosFalso(), plan = plan)
+        advanceUntilIdle()
+        vm.abrirHojaPlan()
+        advanceUntilIdle()
+
+        vm.elegirDia(vm.estado.value.hojaPlan!!.dias[1]) // martes, con aviso
+        advanceUntilIdle()
+        assertTrue(plan.agregados.isEmpty()) // todavía no: espera la confirmación
+        assertEquals(2, vm.estado.value.hojaPlan?.porConfirmar?.dia)
+
+        vm.confirmarDia()
+        advanceUntilIdle()
+        assertEquals(listOf(2 to 1), plan.agregados)
+        assertEquals(1, vm.estado.value.agregado?.avisos?.size)
+    }
+
+    @Test
+    fun `cancelar la confirmacion no agrega y deja la hoja abierta`() = runTest(main.dispatcher) {
+        val plan = planConAvisoElMartes()
+        val vm = vm(EjerciciosFalso(), plan = plan)
+        advanceUntilIdle()
+        vm.abrirHojaPlan()
+        advanceUntilIdle()
+
+        vm.elegirDia(vm.estado.value.hojaPlan!!.dias[1])
+        vm.cancelarConfirmacion()
+        advanceUntilIdle()
+
+        assertTrue(plan.agregados.isEmpty())
+        assertNull(vm.estado.value.hojaPlan?.porConfirmar)
+        assertNotNull(vm.estado.value.hojaPlan)
+    }
+
+    @Test
+    fun `el 409 muestra un mensaje claro y deja elegir otro dia`() = runTest(main.dispatcher) {
+        val plan = PlanFalso().apply { fallarAgregar = Resultado.Fallo("Ese ejercicio ya está en este día", 409) }
+        val vm = vm(EjerciciosFalso(), plan = plan)
+        advanceUntilIdle()
+        vm.abrirHojaPlan()
+        advanceUntilIdle()
+
+        vm.elegirDia(vm.estado.value.hojaPlan!!.dias[0])
+        advanceUntilIdle()
+
+        val hoja = vm.estado.value.hojaPlan!!
+        assertEquals("Este ejercicio ya está en tu plan del lunes. Elige otro día.", hoja.errorAgregar)
+        assertFalse(hoja.guardando)
+        assertNull(vm.estado.value.agregado)
+    }
+
+    @Test
+    fun `otro error muestra el mensaje del backend`() = runTest(main.dispatcher) {
+        val plan = PlanFalso().apply { fallarAgregar = Resultado.Fallo("Máximo 20 ejercicios por día", 400) }
+        val vm = vm(EjerciciosFalso(), plan = plan)
+        advanceUntilIdle()
+        vm.abrirHojaPlan()
+        advanceUntilIdle()
+
+        vm.elegirDia(vm.estado.value.hojaPlan!!.dias[0])
+        advanceUntilIdle()
+
+        assertEquals("Máximo 20 ejercicios por día", vm.estado.value.hojaPlan?.errorAgregar)
+    }
+
+    @Test
+    fun `rutina copiada se informa en la confirmacion`() = runTest(main.dispatcher) {
+        val plan = PlanFalso().apply { copiarAlAgregar = true }
+        val vm = vm(EjerciciosFalso(), plan = plan)
+        advanceUntilIdle()
+        vm.abrirHojaPlan()
+        advanceUntilIdle()
+
+        vm.elegirDia(vm.estado.value.hojaPlan!!.dias[0])
+        advanceUntilIdle()
+
+        assertTrue(vm.estado.value.agregado!!.rutinaCopiada)
+    }
+
+    @Test
+    fun `si previsualizar falla se puede reintentar`() = runTest(main.dispatcher) {
+        val plan = PlanFalso().apply { fallarPrevisualizar = "No se pudo conectar con el servidor. Revisa tu conexión." }
+        val vm = vm(EjerciciosFalso(), plan = plan)
+        advanceUntilIdle()
+        vm.abrirHojaPlan()
+        advanceUntilIdle()
+        assertEquals("No se pudo conectar con el servidor. Revisa tu conexión.", vm.estado.value.hojaPlan?.error)
+
+        plan.fallarPrevisualizar = null
+        vm.reintentarHojaPlan()
+        advanceUntilIdle()
+        assertNull(vm.estado.value.hojaPlan?.error)
+        assertEquals(7, vm.estado.value.hojaPlan?.dias?.size)
     }
 }
