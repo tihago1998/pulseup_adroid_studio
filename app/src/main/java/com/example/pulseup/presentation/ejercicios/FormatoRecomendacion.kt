@@ -51,6 +51,23 @@ fun textoPrincipal(r: RecomendacionEjercicio): String = when (r.unidad) {
     else -> "${series(r.seriesMin, r.seriesMax)} × ${rango(r.repsMin, r.repsMax)} repeticiones"
 }
 
+/**
+ * Series y duración de un ejercicio del plan, según su unidad:
+ * "3 × 10 · 40 kg", "3 × 8–10", "3 × 40 s" o "35 min" (en minutos no se muestran series ni peso).
+ */
+fun textoSeriesPlan(series: Int, repeticiones: String, unidad: String, pesoKg: Double?): String {
+    val valor = rangoDeTexto(repeticiones)
+    return when (unidad) {
+        "minutos" -> "$valor min"
+        "segundos" -> "$series × $valor s" + (pesoKg?.let { " · ${formatearDecimal(it)} kg" } ?: "")
+        else -> "$series × $valor" + (pesoKg?.let { " · ${formatearDecimal(it)} kg" } ?: "")
+    }
+}
+
+/** "Descanso 1 min 15 s"; null con 0 o menos (el cardio no tiene descanso entre series). */
+fun textoDescansoPlan(segundos: Int): String? =
+    if (segundos <= 0) null else "Descanso ${duracionDescanso(segundos)}"
+
 fun textosRecomendacion(r: RecomendacionEjercicio): TextosRecomendacion = TextosRecomendacion(
     titulo = "Recomendado para ti · nivel ${r.nivel}",
     principal = textoPrincipal(r),
