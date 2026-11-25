@@ -21,6 +21,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - Ejercicios en el plan semanal: cada día muestra sus ejercicios (miniatura, nombre y "3 × 10 · 40 kg", "3 × 40 s" o "35 min") y abre su detalle, donde se editan series, repeticiones o duración, peso y descanso (con la recomendación como guía), se quitan con confirmación y se agregan desde el catálogo.
 - "Agregar a mi plan" en el detalle del ejercicio: hoja "¿Qué día?" con los 7 días, si ya tienen rutina y los avisos de 48 h; un día con aviso pide "Agregar igual". Confirmación con "Ver día".
 - Al crear una rutina, hoja "¿Quieres ponerla en tu plan?" para elegir uno o varios días, con avisos de 48 h y un resumen al terminar.
+- Documentación de la aplicación en docs/README.md.
 
 ### Changed
 

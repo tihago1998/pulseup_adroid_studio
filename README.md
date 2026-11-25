@@ -2,6 +2,8 @@
 
 Aplicación móvil nativa para Android que ayuda a las personas a planificar sus rutinas de ejercicio y a cumplirlas semana a semana. Se conecta a la API de [PulseUp Backend](https://github.com/tihago1998/pulse_up_backend).
 
+📄 Documentación de la aplicación: [docs/README.md](docs/README.md).
+
 ## Características
 
 - Inicio de sesión y registro de usuarios.
