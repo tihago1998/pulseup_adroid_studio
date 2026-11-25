@@ -59,16 +59,4 @@ interface ApiService {
         @Header("Authorization") auth: String,
         @Path("id") id: Int
     ): Response<MessageResponse>
-
-    //------------------------------HABITOS--------------------------
-    // Lista los hábitos del usuario dueño del token
-    @GET("api/habitos/")
-    suspend fun getHabitos(@Header("Authorization") auth: String): Response<HabitosListResponse>
-
-    // Registra un hábito para el usuario dueño del token
-    @POST("api/habitos/")
-    suspend fun crearHabito(
-        @Header("Authorization") auth: String,
-        @Body body: HabitoRequest
-    ): Response<MessageResponse>
 }

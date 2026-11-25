@@ -13,6 +13,12 @@ import androidx.compose.ui.unit.sp
 import com.example.pulseup.data.RegisterRequest
 import com.example.pulseup.data.RetrofitClient
 import kotlinx.coroutines.launch
+import com.example.pulseup.ui.theme.PuAccent
+import com.example.pulseup.ui.theme.PuAccentDark
+import com.example.pulseup.ui.theme.PuAccentMid
+import com.example.pulseup.ui.theme.PuBgBase
+import com.example.pulseup.ui.theme.PuTextMuted
+import com.example.pulseup.ui.theme.PuTextPrimary
 
 @Composable
 fun RegisterScreen(

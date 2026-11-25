@@ -73,26 +73,6 @@ data class MessageResponse(
     val message: String?
 )
 
-// ---------- Hábitos ----------
-// Lo que el backend devuelve por cada hábito guardado
-data class Habito(
-    val id: Int,
-    val descripcion: String,
-    val categoria: String,
-    val fecha: String
-)
-
-// El backend responde { "habitos": [ ... ] }
-data class HabitosListResponse(
-    val habitos: List<Habito>?
-)
-
-// Lo que enviamos al registrar uno nuevo (el id_usuario sale del token, no se manda)
-data class HabitoRequest(
-    val descripcion: String,
-    val categoria: String
-)
-
 // ---------- Estadísticas ----------
 data class EstadisticasResponse(
     val total: Int,

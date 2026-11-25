@@ -6,6 +6,9 @@ object Session {
     var token: String? = null
     var usuario: Usuario? = null
 
+    // Frase motivadora que se muestra en el Home. Cambia cada vez que se inicia sesión
+    var frase: String = FrasesMotivadoras.aleatoria()
+
     // true para Administrador y para SuperAdministrador: ambos deben ver
     // la opción de "Administrar usuarios" en el menú
     val isAdmin: Boolean
@@ -33,6 +36,7 @@ object Session {
     fun iniciarSesion(loginResponse: LoginResponse) {
         token = loginResponse.token
         usuario = loginResponse.usuario
+        frase = FrasesMotivadoras.aleatoria(excluir = frase)
     }
 
     // Se llama al cerrar sesión

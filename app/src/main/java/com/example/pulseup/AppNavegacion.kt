@@ -1,13 +1,47 @@
 package com.example.pulseup
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import java.net.URLDecoder
-import java.net.URLEncoder
+import com.example.pulseup.data.Session
+import com.example.pulseup.di.Dependencias
+import com.example.pulseup.domain.model.nombreDiaSemana
+import com.example.pulseup.presentation.ejercicios.CreditosScreen
+import com.example.pulseup.presentation.ejercicios.CreditosViewModel
+import com.example.pulseup.presentation.ejercicios.EjercicioDetalleScreen
+import com.example.pulseup.presentation.ejercicios.EjercicioDetalleViewModel
+import com.example.pulseup.presentation.ejercicios.EjerciciosScreen
+import com.example.pulseup.presentation.ejercicios.EjerciciosViewModel
+import com.example.pulseup.presentation.fabricaDe
+import com.example.pulseup.presentation.home.HomeScreen
+import com.example.pulseup.presentation.home.HomeViewModel
+import com.example.pulseup.presentation.perfil.PerfilFisicoScreen
+import com.example.pulseup.presentation.perfil.PerfilFisicoViewModel
+import com.example.pulseup.presentation.plan.CalendarioScreen
+import com.example.pulseup.presentation.plan.CalendarioViewModel
+import com.example.pulseup.presentation.plan.PlanDiaScreen
+import com.example.pulseup.presentation.plan.PlanDiaViewModel
+import com.example.pulseup.presentation.plan.PlanSemanalScreen
+import com.example.pulseup.presentation.plan.PlanSemanalViewModel
+import com.example.pulseup.presentation.rutinas.CrearRutinaScreen
+import com.example.pulseup.presentation.rutinas.CrearRutinaViewModel
+import com.example.pulseup.presentation.rutinas.RutinaDetalleScreen
+import com.example.pulseup.presentation.rutinas.RutinaDetalleViewModel
+import com.example.pulseup.presentation.rutinas.RutinasScreen
+import com.example.pulseup.presentation.rutinas.RutinasViewModel
+
+/** Clave con la que el catálogo devuelve el ejercicio elegido al detalle de un día del plan. */
+private const val EJERCICIO_ELEGIDO = "ejercicioElegido"
 
 @Composable
 fun AppNavegacion() {
@@ -17,9 +51,9 @@ fun AppNavegacion() {
         composable("login") {
             LoginScreen(
                 onLoginExitoso = {
-                    // Al loguearse, navegamos a "lista" y quitamos "login" del historial
+                    // Al loguearse, navegamos a "home" y quitamos "login" del historial
                     // (popUpTo + inclusive = true) para que el botón "atrás" no regrese al login
-                    navController.navigate("lista") {
+                    navController.navigate("home") {
                         popUpTo("login") { inclusive = true }
                     }
                 },
@@ -39,45 +73,42 @@ fun AppNavegacion() {
                 }
             )
         }
-        composable("lista") {
-            HabitosScreen(
-                onHabitoClick = { habito ->
-                    val descEncoded = URLEncoder.encode(habito.descripcion, "UTF-8")
-                    navController.navigate("detalle/$descEncoded/${habito.categoria}")
-                },
-                onAdminClick = {
-                    navController.navigate("users")
-                },
+        composable("home") { entrada ->
+            val planHoy: CalendarioViewModel = viewModel(
+                factory = fabricaDe { CalendarioViewModel(Dependencias.planRepository) }
+            )
+            val homeViewModel: HomeViewModel = viewModel(
+                factory = fabricaDe { HomeViewModel(Dependencias.planRepository) }
+            )
+            // Al volver al Home (desde el plan, el calendario...) se refresca "Hoy toca";
+            // al terminar, el Home recalcula la tira de la semana y el progreso.
+            DisposableEffect(entrada) {
+                val observador = LifecycleEventObserver { _, evento ->
+                    if (evento == Lifecycle.Event.ON_RESUME) planHoy.cargar()
+                }
+                entrada.lifecycle.addObserver(observador)
+                onDispose { entrada.lifecycle.removeObserver(observador) }
+            }
+            HomeScreen(
+                nombre = Session.primerNombre,
+                frase = Session.frase,
+                viewModel = homeViewModel,
+                planHoy = planHoy,
+                onPlanClick = { navController.navigate("plan") },
+                onCalendarioClick = { navController.navigate("calendario") },
+                onEjerciciosClick = { navController.navigate("ejercicios") },
+                onRutinasClick = { navController.navigate("rutinas") },
+                onPerfilFisicoClick = { navController.navigate("perfilFisico") },
+                onEditarPerfilClick = { navController.navigate("editProfile") },
+                onCambiarPasswordClick = { navController.navigate("changePassword") },
+                onAdminClick = { navController.navigate("users") },
                 onCerrarSesion = {
-                    // Simétrico al login: vamos a "login" y borramos "lista" del historial,
+                    // Vamos a "login" y borramos "home" del historial,
                     // para que el botón "atrás" no regrese a una sesión ya cerrada
                     navController.navigate("login") {
-                        popUpTo("lista") { inclusive = true }
+                        popUpTo("home") { inclusive = true }
                     }
-                },
-                onEditarPerfilClick = {
-                    navController.navigate("editProfile")
-                },
-                onCambiarPasswordClick = {
-                    navController.navigate("changePassword")
                 }
-            )
-        }
-        composable(
-            route = "detalle/{descripcion}/{categoria}",
-            arguments = listOf(
-                navArgument("descripcion") { type = NavType.StringType },
-                navArgument("categoria") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val descEncoded = backStackEntry.arguments?.getString("descripcion") ?: ""
-            val descripcion = URLDecoder.decode(descEncoded, "UTF-8")
-            val categoria = backStackEntry.arguments?.getString("categoria") ?: ""
-
-            DetalleHabitoScreen(
-                descripcion = descripcion,
-                categoria = categoria,
-                onVolverClick = { navController.popBackStack() }
             )
         }
         composable("users") {
@@ -93,6 +124,197 @@ fun AppNavegacion() {
         composable("changePassword") {
             ChangePasswordScreen(
                 onVolverClick = { navController.popBackStack() }
+            )
+        }
+        // ---------- Plan semanal y calendario ----------
+        composable("plan") { entrada ->
+            val viewModel: PlanSemanalViewModel = viewModel(
+                factory = fabricaDe {
+                    PlanSemanalViewModel(Dependencias.planRepository, Dependencias.rutinasRepository)
+                }
+            )
+            // Al volver del detalle de un día se recargan sus ejercicios
+            DisposableEffect(entrada) {
+                val observador = LifecycleEventObserver { _, evento ->
+                    if (evento == Lifecycle.Event.ON_RESUME) viewModel.refrescar()
+                }
+                entrada.lifecycle.addObserver(observador)
+                onDispose { entrada.lifecycle.removeObserver(observador) }
+            }
+            PlanSemanalScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onDiaClick = { dia -> navController.navigate("planDia/$dia") }
+            )
+        }
+        composable(
+            route = "planDia/{dia}",
+            arguments = listOf(navArgument("dia") { type = NavType.IntType })
+        ) { entrada ->
+            val dia = entrada.arguments?.getInt("dia") ?: 1
+            val viewModel: PlanDiaViewModel = viewModel(
+                factory = fabricaDe {
+                    PlanDiaViewModel(Dependencias.planRepository, Dependencias.ejerciciosRepository, dia)
+                }
+            )
+            // El catálogo deja aquí el ejercicio elegido para agregarlo a este día
+            val elegido by entrada.savedStateHandle.getStateFlow<Int?>(EJERCICIO_ELEGIDO, null).collectAsState()
+            LaunchedEffect(elegido) {
+                elegido?.let {
+                    entrada.savedStateHandle[EJERCICIO_ELEGIDO] = null
+                    viewModel.agregar(it)
+                }
+            }
+            PlanDiaScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onAgregarEjercicio = { navController.navigate("elegirEjercicio/$dia") }
+            )
+        }
+        composable(
+            route = "elegirEjercicio/{dia}",
+            arguments = listOf(navArgument("dia") { type = NavType.IntType })
+        ) { entrada ->
+            val dia = entrada.arguments?.getInt("dia") ?: 1
+            val viewModel: EjerciciosViewModel = viewModel(
+                factory = fabricaDe { EjerciciosViewModel(Dependencias.ejerciciosRepository) }
+            )
+            EjerciciosScreen(
+                viewModel = viewModel,
+                titulo = "Agregar al ${nombreDiaSemana(dia)}",
+                onVolver = { navController.popBackStack() },
+                onEjercicioClick = { id ->
+                    navController.previousBackStackEntry?.savedStateHandle?.set(EJERCICIO_ELEGIDO, id)
+                    navController.popBackStack()
+                },
+                onCreditosClick = { navController.navigate("creditosEjercicios") }
+            )
+        }
+        composable("calendario") {
+            val viewModel: CalendarioViewModel = viewModel(
+                factory = fabricaDe { CalendarioViewModel(Dependencias.planRepository) }
+            )
+            CalendarioScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onPlanClick = { navController.navigate("plan") }
+            )
+        }
+        // ---------- Perfil físico ----------
+        composable("perfilFisico") {
+            val viewModel: PerfilFisicoViewModel = viewModel(
+                factory = fabricaDe { PerfilFisicoViewModel(Dependencias.perfilFisicoRepository) }
+            )
+            PerfilFisicoScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onGuardado = { navController.popBackStack() }
+            )
+        }
+        // ---------- Ejercicios y rutinas ----------
+        composable("ejercicios") {
+            val viewModel: EjerciciosViewModel = viewModel(
+                factory = fabricaDe {
+                    EjerciciosViewModel(Dependencias.ejerciciosRepository)
+                }
+            )
+            EjerciciosScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onEjercicioClick = { id -> navController.navigate("ejercicio/$id") },
+                onCreditosClick = { navController.navigate("creditosEjercicios") }
+            )
+        }
+        composable("creditosEjercicios") {
+            val viewModel: CreditosViewModel = viewModel(
+                factory = fabricaDe { CreditosViewModel(Dependencias.ejerciciosRepository) }
+            )
+            CreditosScreen(viewModel = viewModel, onVolver = { navController.popBackStack() })
+        }
+        composable(
+            route = "ejercicio/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { entrada ->
+            val id = entrada.arguments?.getInt("id") ?: 0
+            val viewModel: EjercicioDetalleViewModel = viewModel(
+                factory = fabricaDe {
+                    EjercicioDetalleViewModel(
+                        Dependencias.ejerciciosRepository,
+                        Dependencias.perfilFisicoRepository,
+                        Dependencias.planRepository,
+                        id
+                    )
+                }
+            )
+            // Al volver de Perfil físico se pide otra vez la recomendación (si antes no había)
+            DisposableEffect(entrada) {
+                val observador = LifecycleEventObserver { _, evento ->
+                    if (evento == Lifecycle.Event.ON_RESUME) viewModel.refrescarRecomendacion()
+                }
+                entrada.lifecycle.addObserver(observador)
+                onDispose { entrada.lifecycle.removeObserver(observador) }
+            }
+            EjercicioDetalleScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onPerfilFisicoClick = { navController.navigate("perfilFisico") },
+                onVerDia = { dia -> navController.navigate("planDia/$dia") }
+            )
+        }
+        composable("rutinas") { entrada ->
+            val viewModel: RutinasViewModel = viewModel(
+                factory = fabricaDe { RutinasViewModel(Dependencias.rutinasRepository) }
+            )
+            // Al crear o eliminar una rutina, la pantalla que se cierra deja esta marca para recargar la lista
+            val recargar by entrada.savedStateHandle.getStateFlow("recargar", false).collectAsState()
+            LaunchedEffect(recargar) {
+                if (recargar) {
+                    viewModel.cargar()
+                    entrada.savedStateHandle["recargar"] = false
+                }
+            }
+            RutinasScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onRutinaClick = { id -> navController.navigate("rutina/$id") },
+                onCrearClick = { navController.navigate("rutinaNueva") }
+            )
+        }
+        composable(
+            route = "rutina/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { entrada ->
+            val id = entrada.arguments?.getInt("id") ?: 0
+            val viewModel: RutinaDetalleViewModel = viewModel(
+                factory = fabricaDe { RutinaDetalleViewModel(Dependencias.rutinasRepository, id) }
+            )
+            RutinaDetalleScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onEjercicioClick = { idEjercicio -> navController.navigate("ejercicio/$idEjercicio") },
+                onEliminada = {
+                    navController.previousBackStackEntry?.savedStateHandle?.set("recargar", true)
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable("rutinaNueva") {
+            val viewModel: CrearRutinaViewModel = viewModel(
+                factory = fabricaDe {
+                    CrearRutinaViewModel(
+                        Dependencias.rutinasRepository,
+                        Dependencias.ejerciciosRepository,
+                        Dependencias.planRepository
+                    )
+                }
+            )
+            CrearRutinaScreen(
+                viewModel = viewModel,
+                onVolver = { navController.popBackStack() },
+                onCreada = {
+                    navController.previousBackStackEntry?.savedStateHandle?.set("recargar", true)
+                    navController.popBackStack()
+                }
             )
         }
     }

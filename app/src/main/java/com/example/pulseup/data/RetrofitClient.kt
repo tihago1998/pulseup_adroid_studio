@@ -6,11 +6,17 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import com.example.pulseup.BuildConfig
+import com.example.pulseup.data.remote.EntrenamientoApi
+import com.example.pulseup.data.remote.PerfilFisicoApi
+import com.example.pulseup.data.remote.PlanApi
 
 object RetrofitClient {
 
     // La URL del backend viene de local.properties (pulseup.baseUrl).
     private const val BASE_URL = BuildConfig.BASE_URL
+
+    /** URL del backend; los repositorios la usan para completar las rutas de las fotos. */
+    val baseUrl: String get() = BASE_URL
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -22,12 +28,23 @@ object RetrofitClient {
         .readTimeout(30, TimeUnit.SECONDS)    // 30 segundos
         .build()
 
-    val api: ApiService by lazy {
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(ApiService::class.java)
     }
+
+    // Usuarios y perfil
+    val api: ApiService by lazy { retrofit.create(ApiService::class.java) }
+
+    // Ejercicios y rutinas
+    val entrenamientoApi: EntrenamientoApi by lazy { retrofit.create(EntrenamientoApi::class.java) }
+
+    // Plan semanal y calendario
+    val planApi: PlanApi by lazy { retrofit.create(PlanApi::class.java) }
+
+    // Perfil físico (fecha de nacimiento, peso, estatura, nivel)
+    val perfilFisicoApi: PerfilFisicoApi by lazy { retrofit.create(PerfilFisicoApi::class.java) }
 }
