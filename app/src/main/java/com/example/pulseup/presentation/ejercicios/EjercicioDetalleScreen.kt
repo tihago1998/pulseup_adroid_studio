@@ -1,7 +1,6 @@
 package com.example.pulseup.presentation.ejercicios
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,8 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,12 +35,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.pulseup.domain.model.EjercicioDetalle
-import com.example.pulseup.domain.model.ImagenEjercicio
 import com.example.pulseup.domain.model.RecomendacionEjercicio
 import com.example.pulseup.presentation.componentes.EstadoCarga
 import com.example.pulseup.presentation.componentes.EstadoError
 import com.example.pulseup.presentation.componentes.EtiquetaPu
-import com.example.pulseup.presentation.componentes.ImagenRemota
+import com.example.pulseup.presentation.componentes.GaleriaFotos
 import com.example.pulseup.presentation.componentes.PantallaPu
 import com.example.pulseup.presentation.componentes.textoBonito
 import com.example.pulseup.presentation.plan.DialogoAvisos
@@ -193,62 +189,6 @@ private fun ConfirmacionAgregado(agregado: AgregadoAlPlan, onVerDia: () -> Unit,
             }
         }
     }
-}
-
-/** Fotos de inicio y final: se pasan deslizando, con un indicador debajo. */
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun GaleriaFotos(imagenes: List<ImagenEjercicio>, nombre: String) {
-    val forma = RoundedCornerShape(16.dp)
-    if (imagenes.isEmpty()) {
-        ImagenRemota(
-            url = null,
-            descripcion = nombre,
-            conTexto = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(220.dp)
-                .clip(forma)
-        )
-        return
-    }
-    val pager = rememberPagerState(pageCount = { imagenes.size })
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        HorizontalPager(
-            state = pager,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(240.dp)
-                .clip(forma)
-        ) { pagina ->
-            val imagen = imagenes[pagina]
-            ImagenRemota(
-                url = imagen.url,
-                descripcion = "$nombre, ${etiquetaFoto(imagen.orden)}",
-                conTexto = true,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-        if (imagenes.size > 1) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                imagenes.indices.forEach { i ->
-                    Box(
-                        Modifier
-                            .size(if (i == pager.currentPage) 10.dp else 8.dp)
-                            .clip(CircleShape)
-                            .background(if (i == pager.currentPage) PuAccent else PuBorder)
-                    )
-                }
-            }
-        }
-        Text(etiquetaFoto(imagenes[pager.currentPage].orden), color = PuTextMuted, fontSize = 12.sp)
-    }
-}
-
-private fun etiquetaFoto(orden: Int): String = when (orden) {
-    0 -> "Posición inicial"
-    1 -> "Posición final"
-    else -> "Foto ${orden + 1}"
 }
 
 @Composable
