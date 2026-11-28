@@ -32,6 +32,9 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - La regla de descanso de 48 h solo avisa: al asignar una rutina se muestran antes los avisos (previsualizar) y se confirma con "Asignar igual"; el backend ya no responde 409.
 - El catálogo ya no marca el nivel por defecto: solo se filtra por nivel si el usuario toca el chip (el nivel sigue visible en cada ejercicio y en la recomendación).
 - `PuRojo` pasa a `ui/theme/Color.kt` y se agrega `PuAdvertencia` para los avisos que no bloquean.
+- Home: el saludo se elige por la hora del teléfono ("Buenos días" de 05:00 a 11:59 y "Buenas tardes" de 12:00 a 18:59, con sol; "Buenas noches" de 19:00 a 04:59, con luna) y el icono va al lado del nombre.
+- Home: la tarjeta "Hoy toca" deja un solo botón, "Plan de entrenamiento" (se quita "Calendario"), y con el día cumplido la segunda línea muestra el nombre de la rutina en vez de repetir el título.
+- Home: se quita el acceso a Ejercicios (sigue en la barra inferior); Rutinas y Mi perfil físico quedan en una sola fila con dos tarjetas de igual tamaño.
 
 ### Removed
 
