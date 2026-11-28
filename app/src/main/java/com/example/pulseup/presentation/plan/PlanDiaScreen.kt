@@ -1,11 +1,14 @@
 package com.example.pulseup.presentation.plan
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,14 +20,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,15 +38,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.example.pulseup.domain.model.EjercicioPlan
 import com.example.pulseup.domain.model.MAX_EJERCICIOS_POR_DIA
 import com.example.pulseup.presentation.componentes.EstadoCarga
 import com.example.pulseup.presentation.componentes.EstadoError
 import com.example.pulseup.presentation.componentes.EtiquetaPu
+import com.example.pulseup.presentation.componentes.GaleriaFotos
 import com.example.pulseup.presentation.componentes.ImagenRemota
 import com.example.pulseup.presentation.componentes.PantallaPu
 import com.example.pulseup.presentation.componentes.coloresCampoPu
@@ -64,7 +73,8 @@ import com.example.pulseup.ui.theme.PuTextSecondary
 fun PlanDiaScreen(
     viewModel: PlanDiaViewModel,
     onVolver: () -> Unit,
-    onAgregarEjercicio: () -> Unit
+    onAgregarEjercicio: () -> Unit,
+    onVerEjercicio: (Int) -> Unit
 ) {
     val estado by viewModel.estado.collectAsState()
 
@@ -84,7 +94,8 @@ fun PlanDiaScreen(
                         e = e,
                         habilitada = !estado.ocupado,
                         onEditar = { viewModel.abrirEdicion(e) },
-                        onQuitar = { viewModel.pedirQuitar(e) }
+                        onQuitar = { viewModel.pedirQuitar(e) },
+                        onVerFotos = { viewModel.abrirFotos(e) }
                     )
                 }
                 item {
@@ -119,6 +130,18 @@ fun PlanDiaScreen(
             onDescanso = viewModel::cambiarDescanso,
             onGuardar = viewModel::guardarEdicion,
             onCerrar = viewModel::cerrarEdicion
+        )
+    }
+
+    estado.fotos?.let { fotos ->
+        DialogoFotos(
+            fotos = fotos,
+            onReintentar = viewModel::reintentarFotos,
+            onVerComoSeHace = {
+                viewModel.cerrarFotos()
+                onVerEjercicio(fotos.ejercicioId)
+            },
+            onCerrar = viewModel::cerrarFotos
         )
     }
 
@@ -163,22 +186,33 @@ private fun Encabezado(estado: PlanDiaUiState) {
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 rutina.gruposMusculares.forEach { EtiquetaPu(textoBonito(it)) }
             }
+            Text("Toca un ejercicio para editarlo", color = PuTextMuted, fontSize = 12.sp)
         }
     }
 }
 
+/**
+ * Fila de un ejercicio del plan: tocar la tarjeta abre la edición, tocar la foto abre sus fotos
+ * y la papelera pide confirmación para quitarlo. Los tres clics son independientes.
+ */
 @Composable
 fun TarjetaEjercicioPlan(
     e: EjercicioPlan,
     habilitada: Boolean,
     onEditar: () -> Unit,
-    onQuitar: () -> Unit
+    onQuitar: () -> Unit,
+    onVerFotos: () -> Unit
 ) {
+    val forma = RoundedCornerShape(12.dp)
     Card(
-        shape = RoundedCornerShape(12.dp),
+        shape = forma,
         colors = CardDefaults.cardColors(containerColor = PuBgCard),
         border = BorderStroke(0.5.dp, PuBorder),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(forma)
+            .clickable(enabled = habilitada, role = Role.Button, onClick = onEditar)
+            .semantics { contentDescription = "Editar ${e.nombre}" }
     ) {
         Row(
             modifier = Modifier.padding(start = 10.dp, top = 10.dp, bottom = 10.dp, end = 2.dp),
@@ -187,21 +221,79 @@ fun TarjetaEjercicioPlan(
         ) {
             ImagenRemota(
                 url = e.imagenMiniatura,
-                descripcion = e.nombre,
+                descripcion = null,
                 modifier = Modifier
                     .size(56.dp)
                     .clip(RoundedCornerShape(10.dp))
+                    .clickable(role = Role.Button, onClick = onVerFotos)
+                    .semantics { contentDescription = "Ver fotos de ${e.nombre}" }
             )
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(e.nombre, color = PuTextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Medium)
                 Text(textoSeriesPlan(e.series, e.repeticiones, e.unidad, e.pesoKg), color = PuAccentMid, fontSize = 14.sp)
                 textoDescansoPlan(e.descansoSeg)?.let { Text(it, color = PuTextMuted, fontSize = 12.sp) }
             }
-            IconButton(onClick = onEditar, enabled = habilitada) {
-                Icon(Icons.Default.Edit, contentDescription = "Editar ${e.nombre}", tint = PuTextSecondary)
-            }
             IconButton(onClick = onQuitar, enabled = habilitada) {
                 Icon(Icons.Default.Delete, contentDescription = "Quitar ${e.nombre}", tint = PuTextMuted)
+            }
+        }
+    }
+}
+
+/** Ventana con las fotos del ejercicio, igual que la galería del detalle, y el acceso al detalle completo. */
+@Composable
+private fun DialogoFotos(
+    fotos: FotosEjercicio,
+    onReintentar: () -> Unit,
+    onVerComoSeHace: () -> Unit,
+    onCerrar: () -> Unit
+) {
+    Dialog(onDismissRequest = onCerrar) {
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = PuBgCard),
+            border = BorderStroke(0.5.dp, PuBorder),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(fotos.nombre, color = PuTextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                when {
+                    fotos.cargando -> Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp),
+                        contentAlignment = Alignment.Center
+                    ) { CircularProgressIndicator(color = PuAccent) }
+                    fotos.error != null -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("No se pudieron cargar las fotos: ${fotos.error}", color = PuRojo, fontSize = 14.sp)
+                        OutlinedButton(
+                            onClick = onReintentar,
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, PuAccent),
+                            modifier = Modifier.heightIn(min = 48.dp)
+                        ) { Text("Reintentar", color = PuAccent) }
+                    }
+                    fotos.sinFotos -> Text(
+                        "Este ejercicio todavía no tiene fotos",
+                        color = PuTextSecondary,
+                        fontSize = 14.sp
+                    )
+                    else -> GaleriaFotos(fotos.imagenes, fotos.nombre, altura = 260.dp)
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                ) {
+                    TextButton(onClick = onCerrar, modifier = Modifier.heightIn(min = 48.dp)) {
+                        Text("Cerrar", color = PuTextMuted)
+                    }
+                    Button(
+                        onClick = onVerComoSeHace,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = PuAccent, contentColor = PuAccentDark),
+                        modifier = Modifier.heightIn(min = 48.dp)
+                    ) { Text("Ver cómo se hace") }
+                }
             }
         }
     }

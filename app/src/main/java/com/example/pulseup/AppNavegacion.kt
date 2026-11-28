@@ -168,7 +168,8 @@ fun AppNavegacion() {
             PlanDiaScreen(
                 viewModel = viewModel,
                 onVolver = { navController.popBackStack() },
-                onAgregarEjercicio = { navController.navigate("elegirEjercicio/$dia") }
+                onAgregarEjercicio = { navController.navigate("elegirEjercicio/$dia") },
+                onVerEjercicio = { id -> navController.navigate("ejercicio/$id") }
             )
         }
         composable(

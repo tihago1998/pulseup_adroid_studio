@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.pulseup.domain.Resultado
 import com.example.pulseup.domain.model.DiaPlan
 import com.example.pulseup.domain.model.EjercicioPlan
+import com.example.pulseup.domain.model.ImagenEjercicio
 import com.example.pulseup.domain.model.MAX_EJERCICIOS_POR_DIA
 import com.example.pulseup.domain.model.nombreDiaSemana
 import com.example.pulseup.domain.repository.EjerciciosRepository
@@ -26,11 +27,24 @@ data class PlanDiaUiState(
     val porQuitar: EjercicioPlan? = null,
     /** Agregando o quitando: se desactivan los botones. */
     val ocupado: Boolean = false,
-    val notas: List<Nota> = emptyList()
+    val notas: List<Nota> = emptyList(),
+    /** Ventana con las fotos de un ejercicio; null = cerrada. */
+    val fotos: FotosEjercicio? = null
 ) {
     val nombreDia: String get() = dia?.nombreDia?.ifBlank { null } ?: nombreDiaSemana(diaSemana)
     val ejercicios: List<EjercicioPlan> get() = dia?.ejercicios.orEmpty()
     val lleno: Boolean get() = ejercicios.size >= MAX_EJERCICIOS_POR_DIA
+}
+
+/** Fotos de un ejercicio del plan, traídas de GET api/ejercicios/{id}. */
+data class FotosEjercicio(
+    val ejercicioId: Int,
+    val nombre: String,
+    val cargando: Boolean = true,
+    val imagenes: List<ImagenEjercicio> = emptyList(),
+    val error: String? = null
+) {
+    val sinFotos: Boolean get() = !cargando && error == null && imagenes.isEmpty()
 }
 
 /**
@@ -155,6 +169,54 @@ class PlanDiaViewModel(
                 is Resultado.Fallo -> _estado.update {
                     it.copy(ocupado = false, notas = listOf(Nota(r.mensaje, TipoNota.ERROR)))
                 }
+            }
+        }
+    }
+
+    // ---------- Fotos ----------
+
+    /** Fotos ya traídas por ejercicio: volver a abrir la ventana no llama otra vez al backend. */
+    private val fotosCargadas = mutableMapOf<Int, List<ImagenEjercicio>>()
+
+    /** Ejercicios cuya llamada de fotos sigue en curso (aunque se haya cerrado la ventana). */
+    private val fotosEnCurso = mutableSetOf<Int>()
+
+    /** Abre la ventana de fotos. Varios toques seguidos no repiten la llamada. */
+    fun abrirFotos(item: EjercicioPlan) {
+        val guardadas = fotosCargadas[item.ejercicioId]
+        if (guardadas != null) {
+            _estado.update { it.copy(fotos = FotosEjercicio(item.ejercicioId, item.nombre, cargando = false, imagenes = guardadas)) }
+            return
+        }
+        _estado.update { it.copy(fotos = FotosEjercicio(item.ejercicioId, item.nombre)) }
+        cargarFotos(item.ejercicioId)
+    }
+
+    fun reintentarFotos() {
+        val actual = _estado.value.fotos ?: return
+        if (actual.cargando) return
+        _estado.update { it.copy(fotos = actual.copy(cargando = true, error = null)) }
+        cargarFotos(actual.ejercicioId)
+    }
+
+    fun cerrarFotos() = _estado.update { it.copy(fotos = null) }
+
+    private fun cargarFotos(ejercicioId: Int) {
+        if (!fotosEnCurso.add(ejercicioId)) return
+        viewModelScope.launch {
+            val r = ejercicios.detalle(ejercicioId)
+            fotosEnCurso.remove(ejercicioId)
+            if (r is Resultado.Exito) fotosCargadas[ejercicioId] = r.datos.imagenes.sortedBy { it.orden }
+            _estado.update { e ->
+                val f = e.fotos
+                // Si el usuario ya cerró la ventana o abrió otro ejercicio, no se toca.
+                if (f == null || f.ejercicioId != ejercicioId) return@update e
+                e.copy(
+                    fotos = when (r) {
+                        is Resultado.Exito -> f.copy(cargando = false, imagenes = fotosCargadas[ejercicioId].orEmpty())
+                        is Resultado.Fallo -> f.copy(cargando = false, error = r.mensaje)
+                    }
+                )
             }
         }
     }
