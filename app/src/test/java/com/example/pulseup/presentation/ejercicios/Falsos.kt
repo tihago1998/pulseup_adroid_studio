@@ -51,8 +51,13 @@ class EjerciciosFalso(private val total: Int = 45) : EjerciciosRepository {
         FiltrosCatalogo(listOf("gimnasio", "casa"), listOf("pecho"), listOf("barra"), listOf("principiante", "intermedio", "avanzado"))
     )
 
-    override suspend fun detalle(id: Int): Resultado<EjercicioDetalle> =
-        fallarDetalle?.let { Resultado.Fallo(it) } ?: Resultado.Exito(detalleRespuesta)
+    /** Ids pedidos a detalle(), en orden: sirve para contar llamadas. */
+    val detallesPedidos = mutableListOf<Int>()
+
+    override suspend fun detalle(id: Int): Resultado<EjercicioDetalle> {
+        detallesPedidos += id
+        return fallarDetalle?.let { Resultado.Fallo(it) } ?: Resultado.Exito(detalleRespuesta)
+    }
 
     override suspend fun recomendacion(id: Int): Resultado<RecomendacionEjercicio?> =
         Resultado.Exito(detalleRespuesta.recomendacion)

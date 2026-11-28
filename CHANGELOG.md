@@ -22,6 +22,8 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - "Agregar a mi plan" en el detalle del ejercicio: hoja "¿Qué día?" con los 7 días, si ya tienen rutina y los avisos de 48 h; un día con aviso pide "Agregar igual". Confirmación con "Ver día".
 - Al crear una rutina, hoja "¿Quieres ponerla en tu plan?" para elegir uno o varios días, con avisos de 48 h y un resumen al terminar.
 - Documentación de la aplicación en docs/README.md.
+- Plan del día: tocar toda la tarjeta de un ejercicio abre su edición (se quita el lápiz; la papelera sigue aparte) y una línea indica "Toca un ejercicio para editarlo".
+- Plan del día: tocar la foto de un ejercicio abre una ventana con sus fotos ("Posición inicial" / "Posición final", deslizables con puntos), "Este ejercicio todavía no tiene fotos" si no tiene, "Reintentar" si falla y "Ver cómo se hace", que abre el detalle completo.
 
 ### Changed
 
