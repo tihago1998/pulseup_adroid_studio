@@ -1,8 +1,15 @@
 package com.example.pulseup.presentation.home
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -13,24 +20,55 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.pulseup.ui.theme.PuAccent
+import com.example.pulseup.ui.theme.PuAdvertencia
 import com.example.pulseup.ui.theme.PuTextMuted
 import com.example.pulseup.ui.theme.PuTextPrimary
 import com.example.pulseup.ui.theme.PuTextSecondary
 import java.time.LocalTime
 
-/** Saludo según la hora del día (0 a 23). */
-fun saludoPorHora(hora: Int): String = when (hora) {
-    in 5..11 -> "Buenos días"
-    in 12..17 -> "Buenas tardes"
-    else -> "Buenas noches"
+enum class IconoSaludo { SOL, LUNA }
+
+data class Saludo(val texto: String, val icono: IconoSaludo)
+
+/**
+ * Saludo según la hora del teléfono:
+ * 05:00–11:59 "Buenos días" (sol), 12:00–18:59 "Buenas tardes" (sol), 19:00–04:59 "Buenas noches" (luna).
+ */
+fun saludoPara(hora: LocalTime): Saludo = when (hora.hour) {
+    in 5..11 -> Saludo("Buenos días", IconoSaludo.SOL)
+    in 12..18 -> Saludo("Buenas tardes", IconoSaludo.SOL)
+    else -> Saludo("Buenas noches", IconoSaludo.LUNA)
 }
 
 @Composable
 fun EncabezadoHome(nombre: String, modifier: Modifier = Modifier) {
-    val saludo = remember { saludoPorHora(LocalTime.now().hour) }
+    val saludo = remember { saludoPara(LocalTime.now()) }
     Column(modifier = modifier.fillMaxWidth()) {
-        Text("$saludo,", color = PuTextMuted, fontSize = 13.sp)
-        Text(nombre, color = PuTextPrimary, fontSize = 22.sp, fontWeight = FontWeight.Medium)
+        Text("${saludo.texto},", color = PuTextMuted, fontSize = 13.sp)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                nombre,
+                color = PuTextPrimary,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f, fill = false)
+            )
+            when (saludo.icono) {
+                IconoSaludo.SOL -> Icon(
+                    Icons.Default.WbSunny,
+                    contentDescription = "Sol",
+                    tint = PuAdvertencia,
+                    modifier = Modifier.size(22.dp)
+                )
+                IconoSaludo.LUNA -> Icon(
+                    Icons.Default.DarkMode,
+                    contentDescription = "Luna",
+                    tint = PuAccent,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+        }
     }
 }
 

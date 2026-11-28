@@ -94,14 +94,12 @@ fun HomeScreen(
             item {
                 TarjetaPlanHoy(
                     viewModel = planHoy,
-                    onPlanClick = onPlanClick,
-                    onCalendarioClick = onCalendarioClick
+                    onPlanClick = onPlanClick
                 )
             }
             item { TarjetaProgresoSemana(estado.progreso, onPlanClick) }
             item {
                 AccesoEntrenamiento(
-                    onEjerciciosClick = onEjerciciosClick,
                     onRutinasClick = onRutinasClick,
                     onPerfilFisicoClick = onPerfilFisicoClick
                 )

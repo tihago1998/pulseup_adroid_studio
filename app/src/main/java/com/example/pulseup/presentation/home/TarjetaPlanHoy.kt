@@ -34,13 +34,13 @@ import com.example.pulseup.ui.theme.PuBorder
 fun TarjetaPlanHoy(
     viewModel: CalendarioViewModel,
     onPlanClick: () -> Unit,
-    onCalendarioClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estado by viewModel.estado.collectAsState()
     val hoy = estado.hoy
     val rutinaHoy = hoy?.rutina
     val racha = estado.calendario?.racha?.actual ?: 0
+    val cumplido = hoy?.estado == EstadoDia.CUMPLIDO && rutinaHoy != null
 
     val titulo = when {
         estado.cargando && estado.calendario == null -> "Cargando tu plan…"
@@ -63,15 +63,20 @@ fun TarjetaPlanHoy(
                     modifier = Modifier.weight(1f))
                 Text("🔥 $racha", color = PuTextPrimary, fontSize = 14.sp)
             }
-            estado.aviso?.let {
+            // Cumplido: la segunda línea es el nombre de la rutina (el aviso de éxito repetiría el título).
+            if (cumplido) {
+                rutinaHoy?.nombre?.takeIf { it.isNotBlank() }?.let {
+                    Text(it, color = PuTextMuted, fontSize = 12.sp)
+                }
+            }
+            estado.aviso?.takeIf { !cumplido || estado.avisoEsError }?.let {
                 Text(it, color = if (estado.avisoEsError) PuRojo else PuTextMuted, fontSize = 12.sp)
             }
             if (estado.puedeMarcarHoy || estado.completando) {
                 BotonMarcarHoy(estado.puedeMarcarHoy, estado.completando, viewModel::marcarHoy)
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                TextButton(onClick = onPlanClick) { Text("Mi plan", color = PuAccent, fontSize = 13.sp) }
-                TextButton(onClick = onCalendarioClick) { Text("Calendario", color = PuAccent, fontSize = 13.sp) }
+            TextButton(onClick = onPlanClick) {
+                Text("Plan de entrenamiento", color = PuAccent, fontSize = 13.sp)
             }
         }
     }
